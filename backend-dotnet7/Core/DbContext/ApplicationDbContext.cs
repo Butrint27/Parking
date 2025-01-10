@@ -21,8 +21,7 @@ namespace backend_dotnet7.Core.DbContext
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
 
-        public DbSet<User> User { get; set; }
-        public DbSet<UserProfile> UserProfiles { get; set; }
+ 
 
 
 
@@ -52,11 +51,7 @@ namespace backend_dotnet7.Core.DbContext
                 .HasOne(p => p.Invoice)
                 .WithMany(i => i.Payments)
                 .HasForeignKey(p => p.InvoiceId);
-          
-            builder.Entity<User>()
-                .HasOne(u => u.UserProfile)
-                .WithOne(up => up.User)
-                .HasForeignKey<UserProfile>(up => up.UserId);
+
 
 
             //1

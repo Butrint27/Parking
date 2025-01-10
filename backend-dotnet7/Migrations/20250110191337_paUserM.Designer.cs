@@ -12,8 +12,8 @@ using backend_dotnet7.Core.DbContext;
 namespace backend_dotnet7.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250110164436_userM")]
-    partial class userM
+    [Migration("20250110191337_paUserM")]
+    partial class paUserM
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -471,66 +471,6 @@ namespace backend_dotnet7.Migrations
                     b.ToTable("Reservations");
                 });
 
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.UserProfile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserProfiles");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -620,17 +560,6 @@ namespace backend_dotnet7.Migrations
                     b.Navigation("ParkingSpot");
                 });
 
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.UserProfile", b =>
-                {
-                    b.HasOne("backend_dotnet7.Core.Entities.User", "User")
-                        .WithOne("UserProfile")
-                        .HasForeignKey("backend_dotnet7.Core.Entities.UserProfile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("backend_dotnet7.Core.Entities.Invoice", b =>
                 {
                     b.Navigation("Payments");
@@ -649,12 +578,6 @@ namespace backend_dotnet7.Migrations
             modelBuilder.Entity("backend_dotnet7.Core.Entities.PaymentMethod", b =>
                 {
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.User", b =>
-                {
-                    b.Navigation("UserProfile")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

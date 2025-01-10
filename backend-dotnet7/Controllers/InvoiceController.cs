@@ -69,6 +69,7 @@ namespace backend_dotnet7.Controllers
                 return NotFound("Invoice Not Found");
             }
 
+          
             invoice.DateGenerated = dto.DateGenerated;
             invoice.TotalAmount = dto.TotalAmount;
 

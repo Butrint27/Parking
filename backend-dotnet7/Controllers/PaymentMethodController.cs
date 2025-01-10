@@ -69,6 +69,7 @@ namespace backend_dotnet7.Controllers
                 return NotFound("Payment Method Not Found");
             }
 
+       
             paymentMethod.Type = dto.Type;
             paymentMethod.Details = dto.Details;
 

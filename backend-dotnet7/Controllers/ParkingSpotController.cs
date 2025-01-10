@@ -68,6 +68,7 @@ namespace backend_dotnet7.Controllers
                 return NotFound("Parking Spot Not Found");
             }
 
+    
             parkingSpot.Location = dto.Location;
             parkingSpot.Size = dto.Size;
             parkingSpot.Status = dto.Status;
