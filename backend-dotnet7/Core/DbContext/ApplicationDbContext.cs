@@ -17,6 +17,9 @@ namespace backend_dotnet7.Core.DbContext
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<ParkingSpot> ParkingSpots { get; set; }
         public DbSet<ParkingReservationManager> ParkingReservationManagers { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
 
 
 
@@ -35,6 +38,16 @@ namespace backend_dotnet7.Core.DbContext
                 .HasOne(r => r.ParkingReservationManager)
                 .WithMany(prm => prm.Reservations)
                 .HasForeignKey(r => r.ParkingReservationManagerId);
+
+            builder.Entity<Payment>()
+                .HasOne(p => p.PaymentMethod)
+                .WithMany(pm => pm.Payments)
+                .HasForeignKey(p => p.PaymentMethodId);
+
+            builder.Entity<Payment>()
+                .HasOne(p => p.Invoice)
+                .WithMany(i => i.Payments)
+                .HasForeignKey(p => p.InvoiceId);
 
 
             //1
