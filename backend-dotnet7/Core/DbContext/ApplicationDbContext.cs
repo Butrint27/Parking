@@ -14,14 +14,28 @@ namespace backend_dotnet7.Core.DbContext
 
         public DbSet<Log> Logs { get; set; }
         public DbSet<Message> Messages { get; set; }
-        
-       
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<ParkingSpot> ParkingSpots { get; set; }
+        public DbSet<ParkingReservationManager> ParkingReservationManagers { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            
+
+            //Configure relationship
+            builder.Entity<Reservation>()
+                .HasOne(r => r.ParkingSpot)
+                .WithMany(ps => ps.Reservations)
+                .HasForeignKey(r => r.ParkingSpotId);
+
+            builder.Entity<Reservation>()
+                .HasOne(r => r.ParkingReservationManager)
+                .WithMany(prm => prm.Reservations)
+                .HasForeignKey(r => r.ParkingReservationManagerId);
+
 
             //1
             builder.Entity<ApplicationUser>(e =>
