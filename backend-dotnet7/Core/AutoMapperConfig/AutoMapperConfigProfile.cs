@@ -6,7 +6,10 @@ using backend_dotnet7.Core.Dtos.ParkingSpot;
 using backend_dotnet7.Core.Dtos.Payment;
 using backend_dotnet7.Core.Dtos.PaymentMethod;
 using backend_dotnet7.Core.Dtos.Reservation;
+using backend_dotnet7.Core.Dtos.User;
+using backend_dotnet7.Core.Dtos.UserProfile;
 using backend_dotnet7.Core.Entities;
+using System.Security.Cryptography.Xml;
 
 namespace backend_dotnet7.Core.AutoMapperConfig
 {
@@ -31,6 +34,12 @@ namespace backend_dotnet7.Core.AutoMapperConfig
 
             CreateMap<InvoiceDto,Invoice>();
             CreateMap<Invoice,InvoiceDto>();
+
+            CreateMap<UserDto, User>();
+            CreateMap<User, UserDto>();
+
+            CreateMap<UserProfileDto, UserProfile>();
+            CreateMap<UserProfile, UserProfileDto>();
             
         }
     }
