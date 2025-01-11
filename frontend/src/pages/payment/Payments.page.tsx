@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "https://localhost:7149/api";
 
@@ -50,6 +51,8 @@ const Payments = () => {
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(
     null
   );
+
+  const redirect = useNavigate();
 
   // Fetch data from APIs
   const fetchPayments = async () => {
@@ -114,7 +117,9 @@ const Payments = () => {
   return (
     <Box sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
-        <Button variant="outlined">Add New Payment</Button>
+        <Button variant="outlined" onClick={() => redirect("/payments/add")}>
+          Add New Payment
+        </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>

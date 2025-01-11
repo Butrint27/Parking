@@ -4,6 +4,8 @@ import Button from "../general/Button";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
+// import CreditCardIcon from "@mui/icons-material/CreditCard";
+
 const Sidebar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +23,6 @@ const Sidebar = () => {
           {user?.firstName} {user?.lastName}
         </h4>
       </div>
-
       <Button
         label="Users Management"
         onClick={() => handleClick(PATH_DASHBOARD.usersManagement)}
@@ -83,11 +84,13 @@ const Sidebar = () => {
         type="button"
         variant="secondary"
       />
+
       <Button
         label="Payment"
-        onClick={() => handleClick(PATH_DASHBOARD.systemLogs)}
+        onClick={() => handleClick("/payments")}
         type="button"
         variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
     </div>
   );

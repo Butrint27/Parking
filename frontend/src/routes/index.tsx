@@ -51,19 +51,6 @@ const GlobalRouter = () => {
           <Route path={PATH_DASHBOARD.inbox} element={<InboxPage />} />
           <Route path={PATH_DASHBOARD.myLogs} element={<MyLogsPage />} />
           <Route path={PATH_DASHBOARD.user} element={<UserPage />} />
-          {/* Payment */}
-          <Route path="/payment">
-            <Route
-              index
-              element={
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Payments />
-                </Suspense>
-              }
-            />
-            <Route path="edit/:id" element={<EditPayment />} />
-            <Route path="add" element={<AddPayment />} />
-          </Route>
         </Route>
         <Route element={<AuthGuard roles={managerAccessRoles} />}>
           <Route path={PATH_DASHBOARD.manager} element={<ManagerPage />} />
@@ -98,6 +85,21 @@ const GlobalRouter = () => {
           path="*"
           element={<Navigate to={PATH_PUBLIC.notFound} replace />}
         />
+      </Route>
+      {/* Payment */}
+      <Route element={<AuthGuard roles={allAccessRoles} />}>
+        <Route path="/payments">
+          <Route
+            index
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <Payments />
+              </Suspense>
+            }
+          />
+          <Route path="edit/:id" element={<EditPayment />} />
+          <Route path="add" element={<AddPayment />} />
+        </Route>
       </Route>
     </Routes>
   );
