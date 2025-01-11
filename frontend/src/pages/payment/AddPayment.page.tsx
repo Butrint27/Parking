@@ -12,7 +12,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  SelectChangeEvent,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -51,6 +50,7 @@ export const AddPayment = () => {
     []
   );
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -89,7 +89,7 @@ export const AddPayment = () => {
   const handleInputChange = (
     event:
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<unknown>
+      | { target: { name: string; value: string } }
   ) => {
     const { name, value } = event.target;
     setFormValues((prevValues) => ({
@@ -98,16 +98,43 @@ export const AddPayment = () => {
     }));
   };
 
+  const isFormValid = () => {
+    const { amount, date, status, invoiceId, paymentMethodId } = formValues;
+    return (
+      amount > 0 &&
+      date.trim() !== "" &&
+      status.trim() !== "" &&
+      invoiceId.trim() !== "" &&
+      paymentMethodId.trim() !== ""
+    );
+  };
+
   // Add a new payment
   const addNewPayment = async () => {
     try {
       setIsAdding(true);
+      setError(null);
+      setSuccessMessage(null);
+
       await axios.post("https://localhost:7149/api/Payment/Create", formValues);
-      setIsAdding(false);
+
+      setSuccessMessage("Payment added successfully!");
+      setFormValues({
+        amount: 0,
+        date: "",
+        status: "",
+        invoiceId: "",
+        paymentMethodId: "",
+      });
       navigate("/payments");
-    } catch (error) {
-      console.log("Error adding new payment:", error);
-      setError("Error adding new payment. Please try again.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error adding new payment:", error);
+      setError(
+        error.response?.data?.message ||
+          "Error adding new payment. Please try again."
+      );
+    } finally {
       setIsAdding(false);
     }
   };
@@ -133,6 +160,24 @@ export const AddPayment = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {error && (
+              <TableRow>
+                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
+                  {error}
+                </TableCell>
+              </TableRow>
+            )}
+            {successMessage && (
+              <TableRow>
+                <TableCell
+                  colSpan={2}
+                  align="center"
+                  style={{ color: "green" }}
+                >
+                  {successMessage}
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow>
               <TableCell>Amount</TableCell>
               <TableCell>
@@ -140,6 +185,7 @@ export const AddPayment = () => {
                   name="amount"
                   type="number"
                   onChange={handleInputChange}
+                  value={formValues.amount}
                   placeholder="Amount"
                   fullWidth
                 />
@@ -152,6 +198,7 @@ export const AddPayment = () => {
                   name="date"
                   type="date"
                   onChange={handleInputChange}
+                  value={formValues.date}
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                 />
@@ -163,6 +210,7 @@ export const AddPayment = () => {
                 <TextField
                   name="status"
                   onChange={handleInputChange}
+                  value={formValues.status}
                   placeholder="Status"
                   fullWidth
                 />
@@ -171,50 +219,50 @@ export const AddPayment = () => {
             <TableRow>
               <TableCell>Invoice</TableCell>
               <TableCell>
-                {error ? (
-                  <div>{error}</div>
-                ) : (
-                  <Select
-                    name="invoiceId"
-                    value={formValues.invoiceId}
-                    onChange={handleInputChange}
-                    fullWidth
-                  >
-                    {invoicesList.map((invoice) => (
-                      <MenuItem key={invoice.id} value={invoice.id}>
-                        {`Invoice #${invoice.id} - ${invoice.totalAmount} $`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
+                <Select
+                  name="invoiceId"
+                  value={formValues.invoiceId}
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
+                  fullWidth
+                >
+                  {invoicesList.map((invoice) => (
+                    <MenuItem key={invoice.id} value={invoice.id}>
+                      {`Invoice #${invoice.id} - ${invoice.totalAmount} $`}
+                    </MenuItem>
+                  ))}
+                </Select>
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Payment Method</TableCell>
               <TableCell>
-                {error ? (
-                  <div>{error}</div>
-                ) : (
-                  <Select
-                    name="paymentMethodId"
-                    value={formValues.paymentMethodId}
-                    onChange={handleInputChange}
-                    fullWidth
-                  >
-                    {paymentMethodsList.map((method) => (
-                      <MenuItem key={method.id} value={method.id}>
-                        {method.type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
+                <Select
+                  name="paymentMethodId"
+                  value={formValues.paymentMethodId}
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
+                  fullWidth
+                >
+                  {paymentMethodsList.map((method) => (
+                    <MenuItem key={method.id} value={method.id}>
+                      {method.type}
+                    </MenuItem>
+                  ))}
+                </Select>
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
-                  disabled={isAdding}
+                  disabled={isAdding || !isFormValid()}
                   onClick={addNewPayment}
                 >
                   {isAdding ? "Adding new payment..." : "Add new payment"}

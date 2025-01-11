@@ -9,5 +9,7 @@
         public decimal TotalAmount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public int ParkingSpotId { get; set; }
+        public int ParkingReservationManagerId { get; set; }
     }
 }
