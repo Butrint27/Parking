@@ -16,9 +16,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogContentText,
+  Stack,
 } from "@mui/material";
 import Swal from "sweetalert2";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { PATH_DASHBOARD } from "../../routes/paths";
 
 type PaymentMethod = {
   id: string;
@@ -33,8 +35,8 @@ const PaymentMethods: React.FC = () => {
   >(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const baseUrl = "https://localhost:7149/api/PaymentMethod/Get"; // replace with your actual URL
-  const deleteURL = "https://localhost:7149/api/PaymentMethod"; // replace with your actual URL
+  const baseUrl = "https://localhost:7024/api/PaymentMethod/Get"; // replace with your actual URL
+  const deleteURL = "https://localhost:7024/api/PaymentMethod"; // replace with your actual URL
 
   const location = useLocation();
   const redirect = useNavigate();
@@ -85,67 +87,70 @@ const PaymentMethods: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
-      <Button
-        variant="outlined"
-        onClick={() => redirect("/paymentMethods/add")}
-        sx={{ alignSelf: "flex-end" }}
-      >
-        Add New Payment Method
-      </Button>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Details</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paymentMethods.map((method) => (
-              <TableRow key={method.id}>
-                <TableCell>{method.id}</TableCell>
-                <TableCell>{method.type}</TableCell>
-                <TableCell>{method.details}</TableCell>
-                <TableCell>
-                  <Button
-                    size="small"
-                    onClick={() =>
-                      redirect(`/paymentMethods/edit/${method.id}`)
-                    }
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="small"
-                    onClick={() => handleDeleteClick(method.id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <Box sx={{ padding: 2 }}>
+      <Stack direction="column" spacing={2}>
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={() => redirect(`${PATH_DASHBOARD.paymentMethods}/add`)}
+          sx={{ alignSelf: "flex-end" }}
+        >
+          Add New Payment Method
+        </Button>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Delete Payment Method</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this payment method? This action
-            cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="secondary">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Details</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paymentMethods.map((method) => {
+                return (
+                  <TableRow key={method.id}>
+                    <TableCell>{method.id}</TableCell>
+                    <TableCell>{method.type}</TableCell>
+                    <TableCell>{method.details}</TableCell>
+                    <TableCell>
+                      <Link
+                        to={`${PATH_DASHBOARD.paymentMethods}/edit/${method.id}`}
+                      >
+                        <Button size="small">Edit</Button>
+                      </Link>
+                      <Button
+                        size="small"
+                        onClick={() => handleDeleteClick(method.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Delete Payment Method</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete this payment method? This action
+              cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleDeleteConfirm} color="secondary">
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Stack>
     </Box>
   );
 };

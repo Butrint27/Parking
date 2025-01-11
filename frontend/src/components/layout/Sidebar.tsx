@@ -84,10 +84,24 @@ const Sidebar = () => {
         type="button"
         variant="secondary"
       />
-
+      <hr />
       <Button
         label="Payment"
-        onClick={() => handleClick("/payments")}
+        onClick={() => handleClick(PATH_DASHBOARD.payments)}
+        type="button"
+        variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
+      />
+      <Button
+        label="Payment Method"
+        onClick={() => handleClick(PATH_DASHBOARD.paymentMethods)}
+        type="button"
+        variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
+      />
+      <Button
+        label="Invoice"
+        onClick={() => handleClick(PATH_DASHBOARD.invoice)}
         type="button"
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}

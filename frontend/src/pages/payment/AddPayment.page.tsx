@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { PATH_DASHBOARD } from "../../routes/paths";
 
 type FormValues = {
   amount: number;
@@ -36,15 +37,22 @@ type PaymentMethod = {
   details: string;
 };
 
+export const statuses = [
+  { label: "Active", value: "active" },
+  { label: "Declined", value: "declined" },
+];
+
+const initialValues = {
+  amount: 0,
+  date: "",
+  status: "",
+  invoiceId: "",
+  paymentMethodId: "",
+};
+
 export const AddPayment = () => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>({
-    amount: 0,
-    date: "",
-    status: "",
-    invoiceId: "",
-    paymentMethodId: "",
-  });
+  const [formValues, setFormValues] = useState<FormValues>(initialValues);
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
   const [paymentMethodsList, setPaymentMethodsList] = useState<PaymentMethod[]>(
     []
@@ -58,7 +66,7 @@ export const AddPayment = () => {
   const fetchInvoices = async () => {
     try {
       const res = await axios.get<Invoice[]>(
-        "https://localhost:7149/api/Invoice"
+        "https://localhost:7024/api/Invoice/Get"
       );
       setInvoicesList(res.data);
     } catch (error) {
@@ -71,7 +79,7 @@ export const AddPayment = () => {
   const fetchPaymentMethods = async () => {
     try {
       const res = await axios.get<PaymentMethod[]>(
-        "https://localhost:7149/api/PaymentMethod"
+        "https://localhost:7024/api/PaymentMethod/Get"
       );
       setPaymentMethodsList(res.data);
     } catch (error) {
@@ -85,6 +93,8 @@ export const AddPayment = () => {
     fetchPaymentMethods();
   }, []);
 
+  console.log(formValues);
+
   // Handle form input changes
   const handleInputChange = (
     event:
@@ -92,6 +102,9 @@ export const AddPayment = () => {
       | { target: { name: string; value: string } }
   ) => {
     const { name, value } = event.target;
+
+    console.log({ name, value });
+
     setFormValues((prevValues) => ({
       ...prevValues,
       [name]: value,
@@ -100,12 +113,15 @@ export const AddPayment = () => {
 
   const isFormValid = () => {
     const { amount, date, status, invoiceId, paymentMethodId } = formValues;
+
+    console.log(formValues);
+
     return (
       amount > 0 &&
       date.trim() !== "" &&
       status.trim() !== "" &&
-      invoiceId.trim() !== "" &&
-      paymentMethodId.trim() !== ""
+      invoiceId &&
+      paymentMethodId
     );
   };
 
@@ -116,17 +132,11 @@ export const AddPayment = () => {
       setError(null);
       setSuccessMessage(null);
 
-      await axios.post("https://localhost:7149/api/Payment/Create", formValues);
+      await axios.post("https://localhost:7024/api/Payment/Create", formValues);
 
       setSuccessMessage("Payment added successfully!");
-      setFormValues({
-        amount: 0,
-        date: "",
-        status: "",
-        invoiceId: "",
-        paymentMethodId: "",
-      });
-      navigate("/payments");
+      setFormValues(initialValues);
+      navigate(PATH_DASHBOARD.payments);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error adding new payment:", error);
@@ -207,13 +217,22 @@ export const AddPayment = () => {
             <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>
-                <TextField
+                <Select
                   name="status"
-                  onChange={handleInputChange}
                   value={formValues.status}
-                  placeholder="Status"
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
                   fullWidth
-                />
+                >
+                  {statuses.map((status) => (
+                    <MenuItem key={status.value} value={status.value}>
+                      {status.label}
+                    </MenuItem>
+                  ))}
+                </Select>
               </TableCell>
             </TableRow>
             <TableRow>

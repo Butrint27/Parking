@@ -1,8 +1,7 @@
-import useAuth from '../../hooks/useAuth.hook';
-import Header from './Header';
-import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from './Sidebar';
-
+import useAuth from "../../hooks/useAuth.hook";
+import Header from "./Header";
+import { Outlet, useLocation } from "react-router-dom";
+import Sidebar from "./Sidebar";
 
 const Layout = () => {
   const { isAuthenticated } = useAuth();
@@ -11,7 +10,7 @@ const Layout = () => {
   console.log(pathname);
 
   const sideBarRenderer = () => {
-    if (isAuthenticated && pathname.toLowerCase().startsWith('/dashboard')) {
+    if (isAuthenticated && pathname.toLowerCase().startsWith("/dashboard")) {
       return <Sidebar />;
     }
     return null;
@@ -22,7 +21,7 @@ const Layout = () => {
       <Header />
 
       {}
-      <div className='flex'>
+      <div className="flex">
         {sideBarRenderer()}
         <Outlet />
       </div>

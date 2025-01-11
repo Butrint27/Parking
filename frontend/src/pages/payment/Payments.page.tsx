@@ -17,9 +17,11 @@ import {
   DialogTitle,
 } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { PATH_DASHBOARD } from "../../routes/paths";
+import { format } from "date-fns";
 
-const API_BASE_URL = "https://localhost:7149/api";
+const API_BASE_URL = "https://localhost:7024/api";
 
 // Define the types
 export type Payment = {
@@ -117,7 +119,10 @@ const Payments = () => {
   return (
     <Box sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
-        <Button variant="outlined" onClick={() => redirect("/payments/add")}>
+        <Button
+          variant="outlined"
+          onClick={() => redirect(`${PATH_DASHBOARD.payments}/add`)}
+        >
           Add New Payment
         </Button>
         <TableContainer component={Paper}>
@@ -134,32 +139,53 @@ const Payments = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {payments?.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>{payment.id}</TableCell>
-                  <TableCell>{payment.amount}</TableCell>
-                  <TableCell>{payment.date}</TableCell>
-                  <TableCell>{payment.status}</TableCell>
-                  <TableCell>
-                    {invoices.find(
-                      (invoice) => invoice.id === payment.invoiceId
-                    )?.dateGenerated || "Unknown"}
-                  </TableCell>
-                  <TableCell>
-                    {paymentMethods.find(
-                      (method) => method.id === payment.paymentMethodId
-                    )?.type || "Unknown"}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="small"
-                      onClick={() => handleDeleteClick(payment.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {payments?.map((payment) => {
+                const invoice = invoices.find(
+                  (invoice) => invoice.id === payment.invoiceId
+                );
+
+                const invoiceDateGenerated = invoice?.dateGenerated;
+
+                return (
+                  <TableRow key={payment.id}>
+                    <TableCell>{payment.id}</TableCell>
+                    <TableCell>{payment.amount}</TableCell>
+                    <TableCell>
+                      {payment.date
+                        ? format(new Date(payment.date), "dd-MM-yyyy")
+                        : ""}
+                    </TableCell>
+                    <TableCell>{payment.status}</TableCell>
+                    <TableCell>
+                      {invoiceDateGenerated
+                        ? format(
+                            new Date(invoiceDateGenerated),
+                            "dd-MM-yyyy HH:mm"
+                          )
+                        : "Unknown"}
+                    </TableCell>
+
+                    <TableCell>
+                      {paymentMethods.find(
+                        (method) => method.id === payment.paymentMethodId
+                      )?.type || "Unknown"}
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        to={`${PATH_DASHBOARD.payments}/edit/${payment.id}`}
+                      >
+                        <Button size="small">Edit</Button>
+                      </Link>
+                      <Button
+                        size="small"
+                        onClick={() => handleDeleteClick(payment.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

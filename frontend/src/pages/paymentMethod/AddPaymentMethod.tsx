@@ -20,7 +20,7 @@ type PaymentMethod = {
   details: string;
 };
 
-const BASE_URL = "https://localhost:7149/api/PaymentMethod/Create"; // Adjust to your API
+const BASE_URL = "https://localhost:7024/api/PaymentMethod/Create"; // Adjust to your API
 
 const AddPaymentMethod: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
@@ -46,7 +46,7 @@ const AddPaymentMethod: React.FC = () => {
       setIsAdding(true);
       await axios.post(BASE_URL, formValues);
       setIsAdding(false);
-      navigate("/paymentMethods"); // Redirect to the paymentMethods list page
+      navigate(-1); // Redirect to the paymentMethods list page
     } catch (error) {
       console.log("Error adding new payment method:", error);
     }

@@ -31,7 +31,7 @@ const EditPaymentMethod: React.FC = () => {
   const getPaymentMethodById = async () => {
     try {
       const response = await axios.get<PaymentMethod>(
-        `https://localhost:7149/api/PaymentMethod/${id}`
+        `https://localhost:7024/api/PaymentMethod/${id}`
       );
       const { data } = response;
       setPaymentMethod({
@@ -73,16 +73,14 @@ const EditPaymentMethod: React.FC = () => {
         type: paymentMethod.type,
         details: paymentMethod.details,
       };
-      await axios.put(`https://localhost:7149/api/PaymentMethod/${id}`, data);
+      await axios.put(`https://localhost:7024/api/PaymentMethod/${id}`, data);
       Swal.fire({
         icon: "success",
         title: "Success!",
         text: "Payment method updated successfully.",
         confirmButtonText: "OK",
       }).then(() => {
-        navigate("/paymentMethods", {
-          state: { message: "Payment Method Updated Successfully" },
-        });
+        navigate(-1);
       });
     } catch (error) {
       console.error("Error saving payment method:", error);
@@ -97,7 +95,7 @@ const EditPaymentMethod: React.FC = () => {
 
   // Function to navigate back
   const handleBackBtnClick = () => {
-    navigate("/paymentMethods");
+    navigate(-1);
   };
 
   return (

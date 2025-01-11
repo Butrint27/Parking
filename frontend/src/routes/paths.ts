@@ -19,4 +19,7 @@ export const PATH_DASHBOARD = {
   admin: "/dashboard/admin",
   manager: "/dashboard/manager",
   user: "/dashboard/user",
+  payments: "/dashboard/payments",
+  paymentMethods: "/dashboard/payment-methods",
+  invoice: "/dashboard/invoices",
 };

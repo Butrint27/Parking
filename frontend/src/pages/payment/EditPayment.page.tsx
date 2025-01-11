@@ -9,6 +9,9 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { PATH_DASHBOARD } from "../../routes/paths";
+import { statuses } from "./AddPayment.page";
+import { format } from "date-fns";
 
 type Payment = {
   id: string;
@@ -40,17 +43,24 @@ const EditPayment: React.FC = () => {
     invoiceId: "",
   });
 
+  console.log("paymentpayment", payment);
+
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const navigate = useNavigate();
+
   const { id } = useParams();
 
   const getPaymentById = async () => {
     try {
       const response = await axios.get<Payment>(
-        `https://localhost:7149/api/Payment/${id}`
+        `https://localhost:7024/api/Payment/${id}`
       );
-      setPayment(response.data);
+      console.log("getPaymentById", response.data);
+      const formattedDate = response.data.date
+        ? format(new Date(response.data.date), "yyyy-MM-dd")
+        : "";
+      setPayment({ ...response.data, date: formattedDate });
     } catch (error) {
       console.error("Error fetching payment:", error);
     }
@@ -59,7 +69,7 @@ const EditPayment: React.FC = () => {
   const fetchInvoices = async () => {
     try {
       const response = await axios.get<Invoice[]>(
-        "https://localhost:7149/api/Invoice"
+        "https://localhost:7024/api/Invoice/Get"
       );
       setInvoices(response.data);
     } catch (error) {
@@ -70,7 +80,7 @@ const EditPayment: React.FC = () => {
   const fetchPaymentMethods = async () => {
     try {
       const response = await axios.get<PaymentMethod[]>(
-        "https://localhost:7149/api/PaymentMethod"
+        "https://localhost:7024/api/PaymentMethod/Get"
       );
       setPaymentMethods(response.data);
     } catch (error) {
@@ -87,13 +97,28 @@ const EditPayment: React.FC = () => {
   }, [id]);
 
   // Funksioni për të trajtuar ndryshimet në fushat e inputeve të zakonshme
+  // const handleChange = (
+  //   event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  // ) => {
+  //   const { name, value } = event.target;
+  //   setPayment((prev) => ({
+  //     ...prev,
+  //     [name!]: value,
+  //   }));
+  // };
+
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
   ) => {
     const { name, value } = event.target;
-    setPayment((prev) => ({
-      ...prev,
-      [name!]: value,
+
+    console.log("handleChange", { name, value });
+
+    setPayment((prevValues) => ({
+      ...prevValues,
+      [name]: value,
     }));
   };
 
@@ -113,8 +138,8 @@ const EditPayment: React.FC = () => {
         return;
       }
 
-      await axios.put(`https://localhost:7149/api/Payment/${id}`, payment);
-      navigate("/payments", {
+      await axios.put(`https://localhost:7024/api/Payment/${id}`, payment);
+      navigate(PATH_DASHBOARD.payments, {
         state: { message: "Payment updated successfully!" },
       });
     } catch (error) {
@@ -124,7 +149,7 @@ const EditPayment: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate("/payments");
+    navigate(-1);
   };
 
   return (
@@ -146,22 +171,32 @@ const EditPayment: React.FC = () => {
           onChange={handleChange}
           fullWidth
         />
+
         <TextField
           label="Date"
           name="date"
-          value={payment.date}
           type="date"
+          value={payment.date ?? new Date()}
           onChange={handleChange}
           InputLabelProps={{ shrink: true }}
           fullWidth
         />
-        <TextField
-          label="Status"
+
+        <Select
           name="status"
           value={payment.status}
-          onChange={handleChange}
+          onChange={(e) =>
+            handleChange(e as { target: { name: string; value: string } })
+          }
           fullWidth
-        />
+        >
+          {statuses.map((status) => (
+            <MenuItem key={status.value} value={status.value}>
+              {status.label}
+            </MenuItem>
+          ))}
+        </Select>
+
         <FormControl fullWidth>
           <InputLabel id="invoice-select-label">Invoice</InputLabel>
           <Select
@@ -189,7 +224,7 @@ const EditPayment: React.FC = () => {
           >
             {paymentMethods.map((method) => (
               <MenuItem key={method.id} value={method.id}>
-                {method.type}
+                {method.type} {method.id}
               </MenuItem>
             ))}
           </Select>

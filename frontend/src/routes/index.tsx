@@ -29,19 +29,22 @@ import { Suspense } from "react";
 import Payments from "../pages/payment/Payments.page";
 import EditPayment from "../pages/payment/EditPayment.page";
 import AddPayment from "../pages/payment/AddPayment.page";
+import PaymentMethods from "../pages/paymentMethod/PaymentMethod.page";
+import EditPaymentMethod from "../pages/paymentMethod/EditPaymentMethod.page";
+import AddPaymentMethod from "../pages/paymentMethod/AddPaymentMethod";
+import Invoices from "../pages/invoice/Invoice.page";
+import EditInvoice from "../pages/invoice/EditInvoice.page";
+import AddInvoice from "../pages/invoice/AddInvoice.page";
 
 const GlobalRouter = () => {
   return (
     <Routes>
-      {}
       <Route element={<Layout />}>
-        {}
         <Route index element={<HomePage />} />
         <Route path={PATH_PUBLIC.register} element={<RegisterPage />} />
         <Route path={PATH_PUBLIC.login} element={<LoginPage />} />
         <Route path={PATH_PUBLIC.unauthorized} element={<UnauthorizedPage />} />
 
-        {}
         <Route element={<AuthGuard roles={allAccessRoles} />}>
           <Route path={PATH_DASHBOARD.dashboard} element={<DashboardPage />} />
           <Route
@@ -77,28 +80,56 @@ const GlobalRouter = () => {
         <Route element={<AuthGuard roles={ownerAccessRoles} />}>
           <Route path={PATH_DASHBOARD.owner} element={<OwnerPage />} />
         </Route>
-        {}
 
-        {}
         <Route path={PATH_PUBLIC.notFound} element={<NotFoundPage />} />
+
         <Route
           path="*"
           element={<Navigate to={PATH_PUBLIC.notFound} replace />}
         />
-      </Route>
-      {/* Payment */}
-      <Route element={<AuthGuard roles={allAccessRoles} />}>
-        <Route path="/payments">
-          <Route
-            index
-            element={
-              <Suspense fallback={<div>Loading...</div>}>
-                <Payments />
-              </Suspense>
-            }
-          />
-          <Route path="edit/:id" element={<EditPayment />} />
-          <Route path="add" element={<AddPayment />} />
+
+        <Route element={<AuthGuard roles={allAccessRoles} />}>
+          <Route path={PATH_DASHBOARD.payments}>
+            <Route
+              index
+              element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Payments />
+                </Suspense>
+              }
+            />
+            <Route path="edit/:id" element={<EditPayment />} />
+            <Route path="add" element={<AddPayment />} />
+          </Route>
+        </Route>
+
+        <Route element={<AuthGuard roles={allAccessRoles} />}>
+          <Route path={PATH_DASHBOARD.paymentMethods}>
+            <Route
+              index
+              element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <PaymentMethods />
+                </Suspense>
+              }
+            />
+            <Route path="edit/:id" element={<EditPaymentMethod />} />
+            <Route path="add" element={<AddPaymentMethod />} />
+          </Route>
+        </Route>
+        <Route element={<AuthGuard roles={allAccessRoles} />}>
+          <Route path={PATH_DASHBOARD.invoice}>
+            <Route
+              index
+              element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Invoices />
+                </Suspense>
+              }
+            />
+            <Route path="edit/:id" element={<EditInvoice />} />
+            <Route path="add" element={<AddInvoice />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
