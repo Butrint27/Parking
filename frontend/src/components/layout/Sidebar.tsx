@@ -106,6 +106,28 @@ const Sidebar = () => {
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
+      <hr />
+       <Button
+        label="Reservation"
+        onClick={() => handleClick(PATH_DASHBOARD.reservations)}
+        type="button"
+        variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
+      />
+        <Button
+        label="ParkingSpot"
+        onClick={() => handleClick(PATH_DASHBOARD.parkingSpot)}
+        type="button"
+        variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
+      />
+        <Button
+        label="ParkingReservationManager"
+        onClick={() => handleClick(PATH_DASHBOARD.parkingReservationManagers)}
+        type="button"
+        variant="secondary"
+        // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
+      />
     </div>
   );
 };

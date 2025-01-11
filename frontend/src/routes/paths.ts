@@ -22,4 +22,7 @@ export const PATH_DASHBOARD = {
   payments: "/dashboard/payments",
   paymentMethods: "/dashboard/payment-methods",
   invoice: "/dashboard/invoices",
+  reservations: "/dashboard/reservations",
+  parkingSpot: "/dashboard/parkingSpots",
+  parkingReservationManagers: "/dashboard/parkingReservationManagers",
 };
