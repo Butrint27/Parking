@@ -1,150 +1,188 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { TextField, Button } from "@mui/material";
 import axios from "axios";
-import Swal from "sweetalert2";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
-// Define the ParkingSpaceManager type
-type ParkingSpaceManager = {
-  id: string;
-  parkingSpaceName: string;
-  capacity: number;
+type ParkingSpaceManagerDto = {
+  id: number;
+  status: string;
+  pagesa: number;
+  kontakti: string;
+  parkingSpaceId: number;
 };
 
 const EditParkingSpaceManager: React.FC = () => {
-  const [parkingSpaceManager, setParkingSpaceManager] = useState<Partial<ParkingSpaceManager>>({
-    parkingSpaceName: "",
-    capacity: 0,
+  const [parkingSpaceManager, setParkingSpaceManager] = useState<
+    Partial<ParkingSpaceManagerDto>
+  >({
+    status: "",
+    pagesa: 0,
+    kontakti: "",
+    parkingSpaceId: 0,
   });
+
+  const [statusList, setStatusList] = useState<
+    { label: string; value: string }[]
+  >([
+    { label: "Active", value: "active" },
+    { label: "Inactive", value: "inactive" },
+  ]);
+
+  const [parkingSpaces, setParkingSpaces] = useState<
+    { id: number; location: string }[]
+  >([]);
 
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Function to handle input change
-  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setParkingSpaceManager({
-      ...parkingSpaceManager,
-      [name]: name === "capacity" ? parseInt(value) || 0 : value,
-    });
-  };
-
-  // Function to fetch parking space manager by ID
   const getParkingSpaceManagerById = async () => {
     try {
-      const response = await axios.get<ParkingSpaceManager>(
+      const response = await axios.get<ParkingSpaceManagerDto>(
         `https://localhost:7024/api/ParkingSpaceManager/${id}`
       );
-      const { data } = response;
-      setParkingSpaceManager({
-        parkingSpaceName: data.parkingSpaceName,
-        capacity: data.capacity,
-      });
+      setParkingSpaceManager(response.data);
     } catch (error) {
       console.error("Error fetching parking space manager:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was an issue fetching the parking space manager details.",
-        confirmButtonText: "OK",
-      });
     }
   };
 
-  // Fetch parking space manager details when component is mounted
+  const fetchParkingSpaces = async () => {
+    try {
+      const response = await axios.get<{ id: number; location: string }[]>(
+        "https://localhost:7024/api/ParkingSpace/Get"
+      );
+      setParkingSpaces(response.data);
+    } catch (error) {
+      console.error("Error fetching parking spaces:", error);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       getParkingSpaceManagerById();
+      fetchParkingSpaces();
     }
   }, [id]);
 
-  // Function to handle saving the edited parking space manager
-  const handleSaveBtnClick = async () => {
-    if (parkingSpaceManager.parkingSpaceName === "" || parkingSpaceManager.capacity === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Please fill in all fields with valid data.",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
+  const handleChange = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
+  ) => {
+    const { name, value } = event.target;
+    setParkingSpaceManager((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
 
+  const handleSave = async () => {
     try {
-      const data: Partial<ParkingSpaceManager> = {
-        parkingSpaceName: parkingSpaceManager.parkingSpaceName,
-        capacity: parkingSpaceManager.capacity,
+      if (
+        !parkingSpaceManager.status ||
+        !parkingSpaceManager.kontakti ||
+        !parkingSpaceManager.parkingSpaceId
+      ) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      // Ensure that parkingSpaceId is a number before sending to the API
+      const updatedManager = {
+        ...parkingSpaceManager,
+        parkingSpaceId: Number(parkingSpaceManager.parkingSpaceId), // Convert to number
       };
+
       await axios.put(
         `https://localhost:7024/api/ParkingSpaceManager/${id}`,
-        data
+        updatedManager
       );
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: "Parking space manager updated successfully.",
-        confirmButtonText: "OK",
-      }).then(() => {
-        navigate(PATH_DASHBOARD.parkingSpaceManager, {
-          state: { message: "Parking Space Manager Updated Successfully" },
-        });
+      navigate(PATH_DASHBOARD.parkingSpaceManager, {
+        state: { message: "Parking Space Manager updated successfully!" },
       });
     } catch (error) {
-      console.error("Error saving parking space manager:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was an issue updating the parking space manager.",
-        confirmButtonText: "OK",
-      });
+      console.error("Error updating parking space manager:", error);
+      alert("Error updating parking space manager.");
     }
   };
 
-  // Function to navigate back
-  const handleBackBtnClick = () => {
-    navigate(PATH_DASHBOARD.parkingSpaceManager);
+  const handleBack = () => {
+    navigate(-1);
   };
 
   return (
-    <div className="edit-parking-space-manager">
-      <div className="edit-parking-space-manager-content">
-        <h2>Edit Parking Space Manager</h2>
-        <div className="form">
-          <TextField
-            autoComplete="off"
-            label="Parking Space Name"
-            variant="outlined"
-            name="parkingSpaceName"
-            value={parkingSpaceManager.parkingSpaceName || ""}
-            onChange={changeHandler}
-            fullWidth
-          />
-          <TextField
-            autoComplete="off"
-            label="Capacity"
-            variant="outlined"
-            name="capacity"
-            type="number"
-            value={parkingSpaceManager.capacity || ""}
-            onChange={changeHandler}
-            fullWidth
-          />
-        </div>
+    <div style={{ padding: "20px" }}>
+      <h2>Edit Parking Space Manager</h2>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          maxWidth: "400px",
+        }}
+      >
+        <TextField
+          label="Kontakti"
+          name="kontakti"
+          value={parkingSpaceManager.kontakti || ""}
+          onChange={handleChange}
+          fullWidth
+        />
 
-        <div className="button-container">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleSaveBtnClick}
+        <TextField
+          label="Pagesa"
+          name="pagesa"
+          type="number"
+          value={parkingSpaceManager.pagesa || ""}
+          onChange={handleChange}
+          fullWidth
+        />
+
+        <FormControl fullWidth>
+          <InputLabel id="status-select-label">Status</InputLabel>
+          <Select
+            labelId="status-select-label"
+            name="status"
+            value={parkingSpaceManager.status || ""}
+            onChange={handleChange}
           >
+            {statusList.map((status) => (
+              <MenuItem key={status.value} value={status.value}>
+                {status.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="parking-space-select-label">Parking Space</InputLabel>
+          <Select
+            labelId="parking-space-select-label"
+            name="parkingSpaceId"
+            value={String(parkingSpaceManager.parkingSpaceId) || ""} // Ensure parkingSpaceId is a string in the Select
+            onChange={handleChange}
+          >
+            {parkingSpaces.map((space) => (
+              <MenuItem key={space.id} value={String(space.id)}>
+                {space.location}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleBackBtnClick}
-          >
+          <Button variant="outlined" color="secondary" onClick={handleBack}>
             Back
           </Button>
         </div>

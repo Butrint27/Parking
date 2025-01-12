@@ -20,9 +20,11 @@ namespace backend_dotnet7.Core.DbContext
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<TesetPerDb> tesetPerDbs { get; set; }
+        public DbSet<AvailabilityMonitor> AvailabilityMonitors { get; set; }
         public DbSet<ParkingSpace> ParkingSpaces { get; set; }
         public DbSet<ParkingSpaceManager> ParkingSpaceManagers { get; set; }
-        public DbSet<AvailabilityMonitor> AvailabilityMonitors { get; set; }
+
 
 
 
@@ -56,14 +58,15 @@ namespace backend_dotnet7.Core.DbContext
                 .HasForeignKey(p => p.InvoiceId);
 
             builder.Entity<ParkingSpace>()
-                .HasMany(ps => ps.ParkingSpaceManagers)
-                .WithOne(psm => psm.ParkingSpace)
-                .HasForeignKey(psm => psm.ParkingSpaceId);
+              .HasMany(ps => ps.ParkingSpaceManagers)
+              .WithOne(psm => psm.ParkingSpace)
+              .HasForeignKey(psm => psm.ParkingSpaceId);
 
             builder.Entity<ParkingSpace>()
                 .HasOne(ps => ps.AvailabilityMonitor)
                 .WithOne(am => am.ParkingSpace)
                 .HasForeignKey<AvailabilityMonitor>(am => am.ParkingSpaceId);
+
 
             //1
             builder.Entity<ApplicationUser>(e =>

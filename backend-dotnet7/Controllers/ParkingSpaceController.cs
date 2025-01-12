@@ -87,7 +87,7 @@ namespace backend_dotnet7.Controllers
             parkingSpace.UpdatedAt = DateTime.Now;
 
             // If there are any related AvailabilityMonitor or ParkingSpaceManagers, update them if needed
-            
+
 
             // Save changes
             await _context.SaveChangesAsync();

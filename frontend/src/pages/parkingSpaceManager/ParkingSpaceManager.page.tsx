@@ -23,20 +23,44 @@ import { PATH_DASHBOARD } from "../../routes/paths";
 const API_BASE_URL = "https://localhost:7024/api";
 
 // Define the types
+export type ParkingSpaceManager = {
+  id: string;
+  status: string;
+  pagesa: number;
+  kontakti: string;
+  parkingSpaceId: string;
+};
+
 export type ParkingSpace = {
   id: string;
   location: string;
-  isAvailable: boolean;
+  size: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  pricePerHour: number;
 };
 
 const ParkingSpaceManager = () => {
-  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[] | null>(null);
+  const [managers, setManagers] = useState<ParkingSpaceManager[] | null>(null);
+  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [open, setOpen] = useState(false);
-  const [selectedParkingSpaceId, setSelectedParkingSpaceId] = useState<string | null>(null);
+  const [selectedManagerId, setSelectedManagerId] = useState<string | null>(
+    null
+  );
 
   const redirect = useNavigate();
 
   // Fetch data from APIs
+  const fetchManagers = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/ParkingSpaceManager/Get`);
+      setManagers(res.data);
+    } catch (error) {
+      console.error("Error fetching managers:", error);
+    }
+  };
+
   const fetchParkingSpaces = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/ParkingSpace/Get`);
@@ -46,27 +70,28 @@ const ParkingSpaceManager = () => {
     }
   };
 
-  // Delete parking space
+  // Delete manager
   const handleDeleteClick = (id: string) => {
-    setSelectedParkingSpaceId(id);
+    setSelectedManagerId(id);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setSelectedParkingSpaceId(null);
+    setSelectedManagerId(null);
   };
 
   const handleDeleteConfirm = async () => {
-    if (selectedParkingSpaceId) {
+    if (selectedManagerId) {
       try {
-        await axios.delete(`${API_BASE_URL}/ParkingSpace/${selectedParkingSpaceId}`);
-        setParkingSpaces(
-          (prev) =>
-            prev?.filter((space) => space.id !== selectedParkingSpaceId) || null
+        await axios.delete(
+          `${API_BASE_URL}/ParkingSpaceManager/${selectedManagerId}`
+        );
+        setManagers(
+          (prev) => prev?.filter((m) => m.id !== selectedManagerId) || null
         );
       } catch (error) {
-        console.error("Error deleting parking space:", error);
+        console.error("Error deleting manager:", error);
       } finally {
         handleClose();
       }
@@ -74,6 +99,7 @@ const ParkingSpaceManager = () => {
   };
 
   useEffect(() => {
+    fetchManagers();
     fetchParkingSpaces();
   }, []);
 
@@ -84,47 +110,62 @@ const ParkingSpaceManager = () => {
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.parkingSpaceManager}/add`)}
         >
-          Add New Parking Space
+          Add New Manager
         </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Availability</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Pagesa</TableCell>
+                <TableCell>Kontakti</TableCell>
+                <TableCell>Parking Space</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {parkingSpaces?.map((space) => (
-                <TableRow key={space.id}>
-                  <TableCell>{space.id}</TableCell>
-                  <TableCell>{space.location}</TableCell>
-                  <TableCell>{space.isAvailable ? "Available" : "Occupied"}</TableCell>
-                  <TableCell>
-                    <Link to={`${PATH_DASHBOARD.parkingSpaceManager}/edit/${space.id}`}>
-                      <Button size="small">Edit</Button>
-                    </Link>
-                    <Button
-                      size="small"
-                      onClick={() => handleDeleteClick(space.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {managers?.map((manager) => {
+                const parkingSpace = parkingSpaces.find(
+                  (space) => space.id === manager.parkingSpaceId
+                );
+
+                return (
+                  <TableRow key={manager.id}>
+                    <TableCell>{manager.id}</TableCell>
+                    <TableCell>{manager.status}</TableCell>
+                    <TableCell>{manager.pagesa}</TableCell>
+                    <TableCell>{manager.kontakti}</TableCell>
+                    <TableCell>
+                      {parkingSpace
+                        ? `${parkingSpace.location} (${parkingSpace.size})`
+                        : "Unknown"}
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        to={`${PATH_DASHBOARD.parkingSpaceManager}/edit/${manager.id}`}
+                      >
+                        <Button size="small">Edit</Button>
+                      </Link>
+                      <Button
+                        size="small"
+                        onClick={() => handleDeleteClick(manager.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
-
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Delete Parking Space</DialogTitle>
+          <DialogTitle>Delete Manager</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete this parking space? This action
-              cannot be undone.
+              Are you sure you want to delete this manager? This action cannot
+              be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>

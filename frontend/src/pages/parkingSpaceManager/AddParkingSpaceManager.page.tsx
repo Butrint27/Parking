@@ -1,55 +1,123 @@
-import { ChangeEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   Box,
+  Select,
+  MenuItem,
+  TextField,
   Button,
-  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
+  Paper,
 } from "@mui/material";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
-type ParkingSpaceManager = {
-  id?: string;
-  parkingSpaceName: string;
-  capacity: number;
+type ParkingSpaceManagerDto = {
+  id: number;
+  status: string;
+  pagesa: number;
+  kontakti: string;
+  parkingSpaceId: number;
 };
 
-const BASE_URL = "https://localhost:7024/api/ParkingSpaceManager/Create"; // Adjust to your API endpoint
+type ParkingSpace = {
+  id: number;
+  location: string;
+};
 
-const AddParkingSpaceManager: React.FC = () => {
+const statuses = [
+  { label: "Active", value: "active" },
+  { label: "Declined", value: "declined" },
+];
+
+const initialValues: ParkingSpaceManagerDto = {
+  id: 0,
+  status: "",
+  pagesa: 0,
+  kontakti: "",
+  parkingSpaceId: 0,
+};
+
+export const AddParkingSpaceManager: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formValues, setFormValues] = useState<Partial<ParkingSpaceManager>>({
-    parkingSpaceName: "",
-    capacity: 0,
-  });
+  const [formValues, setFormValues] =
+    useState<ParkingSpaceManagerDto>(initialValues);
+  const [parkingSpacesList, setParkingSpacesList] = useState<ParkingSpace[]>(
+    []
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
+  // Fetch parking spaces from the API
+  const fetchParkingSpaces = async () => {
+    try {
+      const res = await axios.get<ParkingSpace[]>(
+        "https://localhost:7024/api/ParkingSpace/Get"
+      );
+      setParkingSpacesList(res.data);
+    } catch (error) {
+      console.error("Error fetching parking spaces:", error);
+      setError("Error fetching parking spaces. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    fetchParkingSpaces();
+  }, []);
+
+  // Handle form input changes
   const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
   ) => {
     const { name, value } = event.target;
     setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: name === "capacity" ? parseInt(value) || 0 : value,
+      [name]: value,
     }));
   };
 
+  const isFormValid = () => {
+    const { status, pagesa, kontakti, parkingSpaceId } = formValues;
+    return (
+      status.trim() !== "" &&
+      pagesa > 0 &&
+      kontakti.trim() !== "" &&
+      parkingSpaceId > 0
+    );
+  };
+
+  // Add a new ParkingSpaceManager
   const addNewParkingSpaceManager = async () => {
     try {
       setIsAdding(true);
-      await axios.post(BASE_URL, formValues);
+      setError(null);
+      setSuccessMessage(null);
+
+      await axios.post(
+        "https://localhost:7024/api/ParkingSpaceManager/Create",
+        formValues
+      );
+
+      setSuccessMessage("Parking Space Manager added successfully!");
+      setFormValues(initialValues);
+      navigate(PATH_DASHBOARD.parkingSpaceManager); // Redirect to the list of parking space managers
+    } catch (error: any) {
+      console.error("Error adding new Parking Space Manager:", error);
+      setError(
+        error.response?.data?.message ||
+          "Error adding new Parking Space Manager. Please try again."
+      );
+    } finally {
       setIsAdding(false);
-      navigate(PATH_DASHBOARD.parkingSpaceManager); // Redirect to the parking space manager list page
-    } catch (error) {
-      console.error("Error adding new parking space manager:", error);
     }
   };
 
@@ -74,41 +142,99 @@ const AddParkingSpaceManager: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {error && (
+              <TableRow>
+                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
+                  {error}
+                </TableCell>
+              </TableRow>
+            )}
+            {successMessage && (
+              <TableRow>
+                <TableCell
+                  colSpan={2}
+                  align="center"
+                  style={{ color: "green" }}
+                >
+                  {successMessage}
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow>
-              <TableCell>Parking Space Name</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>
+                <Select
+                  name="status"
+                  value={formValues.status}
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
+                  fullWidth
+                >
+                  {statuses.map((status) => (
+                    <MenuItem key={status.value} value={status.value}>
+                      {status.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Payment</TableCell>
               <TableCell>
                 <TextField
-                  name="parkingSpaceName"
-                  value={formValues.parkingSpaceName || ""}
+                  name="pagesa"
+                  type="number"
                   onChange={handleInputChange}
-                  placeholder="Parking Space Name"
+                  value={formValues.pagesa}
+                  placeholder="Amount"
                   fullWidth
                 />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Capacity</TableCell>
+              <TableCell>Contact</TableCell>
               <TableCell>
                 <TextField
-                  name="capacity"
-                  value={formValues.capacity || ""}
+                  name="kontakti"
                   onChange={handleInputChange}
-                  placeholder="Capacity"
-                  type="number"
+                  value={formValues.kontakti}
+                  placeholder="Contact"
                   fullWidth
                 />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Parking Space</TableCell>
+              <TableCell>
+                <Select
+                  name="parkingSpaceId"
+                  value={formValues.parkingSpaceId}
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
+                  fullWidth
+                >
+                  {parkingSpacesList.map((space) => (
+                    <MenuItem key={space.id} value={space.id}>
+                      {space.location}
+                    </MenuItem>
+                  ))}
+                </Select>
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
-                  disabled={isAdding}
+                  disabled={isAdding || !isFormValid()}
                   onClick={addNewParkingSpaceManager}
                 >
-                  {isAdding
-                    ? "Adding new parking space manager..."
-                    : "Add new parking space manager"}
+                  {isAdding ? "Adding new manager..." : "Add New Manager"}
                 </Button>
               </TableCell>
             </TableRow>

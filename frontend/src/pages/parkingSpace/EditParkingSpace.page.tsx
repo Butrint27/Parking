@@ -1,175 +1,182 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
-import {
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { TextField, Button } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
+import { PATH_DASHBOARD } from "../../routes/paths";
+import { format } from "date-fns";
 
+// Krijo llojin e të dhënave për ParkingSpace
 type ParkingSpace = {
   id: string;
   location: string;
   size: string;
-  isAvailable: boolean;
-  parkingLotId: string;
-};
-
-type ParkingLot = {
-  id: string;
-  name: string;
-  address: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  pricePerHour: number;
 };
 
 const EditParkingSpace: React.FC = () => {
   const [parkingSpace, setParkingSpace] = useState<Partial<ParkingSpace>>({
     location: "",
     size: "",
-    isAvailable: false,
-    parkingLotId: "",
+    status: "",
+    pricePerHour: 0,
   });
 
-  const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const fetchParkingSpaceById = async () => {
+  // Funksioni për të trajtuar ndryshimet në inpute
+  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setParkingSpace({
+      ...parkingSpace,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  // Funksioni për të marrë ParkingSpace nga ID
+  const getParkingSpaceById = async () => {
     try {
       const response = await axios.get<ParkingSpace>(
         `https://localhost:7024/api/ParkingSpace/${id}`
       );
-      setParkingSpace(response.data);
+      const { data } = response;
+      setParkingSpace({
+        location: data.location,
+        size: data.size,
+        status: data.status,
+        pricePerHour: data.pricePerHour,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      });
     } catch (error) {
       console.error("Error fetching parking space:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "There was an issue fetching the parking space details.",
+        confirmButtonText: "OK",
+      });
     }
   };
 
-  const fetchParkingLots = async () => {
-    try {
-      const response = await axios.get<ParkingLot[]>(
-        "https://localhost:7024/api/ParkingLot/Get"
-      );
-      setParkingLots(response.data);
-    } catch (error) {
-      console.error("Error fetching parking lots:", error);
-    }
-  };
-
+  // Merr ParkingSpace detajet kur komponenti ngarkohet
   useEffect(() => {
     if (id) {
-      fetchParkingSpaceById();
-      fetchParkingLots();
+      getParkingSpaceById();
     }
   }, [id]);
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-    setParkingSpace((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-  };
+  // Funksioni për të ruajtur ndryshimet
+  const handleSaveBtnClick = async () => {
+    if (
+      parkingSpace.location === "" ||
+      parkingSpace.size === "" ||
+      parkingSpace.status === "" ||
+      parkingSpace.pricePerHour <= 0
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Please fill in all fields with valid data.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
 
-  const handleSelectChange = (event: any) => {
-    const { name, value } = event.target;
-    setParkingSpace((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSave = async () => {
     try {
-      if (!parkingSpace.location || !parkingSpace.size || !parkingSpace.parkingLotId) {
-        alert("Please fill all required fields.");
-        return;
-      }
-
-      await axios.put(`https://localhost:7024/api/ParkingSpace/${id}`, parkingSpace);
-      navigate("/dashboard/parking-spaces", {
-        state: { message: "Parking space updated successfully!" },
+      const data: Partial<ParkingSpace> = {
+        location: parkingSpace.location,
+        size: parkingSpace.size,
+        status: parkingSpace.status,
+        pricePerHour: parkingSpace.pricePerHour,
+      };
+      await axios.put(`https://localhost:7024/api/ParkingSpace/${id}`, data);
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Parking space updated successfully.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate(PATH_DASHBOARD.parkingSpace, {
+          state: { message: "Parking Space Updated Successfully" },
+        });
       });
     } catch (error) {
-      console.error("Error updating parking space:", error);
-      alert("Error updating parking space.");
+      console.error("Error saving parking space:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "There was an issue updating the parking space.",
+        confirmButtonText: "OK",
+      });
     }
   };
 
-  const handleBack = () => {
-    navigate(-1);
+  // Funksioni për të kthehet prapa në listën e parking spaces
+  const handleBackBtnClick = () => {
+    navigate(PATH_DASHBOARD.parkingSpace);
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Edit Parking Space</h2>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          maxWidth: "400px",
-        }}
-      >
-        <TextField
-          label="Location"
-          name="location"
-          value={parkingSpace.location}
-          onChange={handleChange}
-          fullWidth
-        />
+    <div className="edit-parking-space">
+      <div className="edit-parking-space-content">
+        <h2>Edit Parking Space</h2>
+        <div className="form">
+          <TextField
+            autoComplete="off"
+            label="Location"
+            variant="outlined"
+            name="location"
+            value={parkingSpace.location}
+            onChange={changeHandler}
+            fullWidth
+          />
+          <TextField
+            autoComplete="off"
+            label="Size"
+            variant="outlined"
+            name="size"
+            value={parkingSpace.size}
+            onChange={changeHandler}
+            fullWidth
+          />
+          <TextField
+            autoComplete="off"
+            label="Status"
+            variant="outlined"
+            name="status"
+            value={parkingSpace.status}
+            onChange={changeHandler}
+            fullWidth
+          />
+          <TextField
+            autoComplete="off"
+            label="Price per Hour"
+            variant="outlined"
+            name="pricePerHour"
+            type="number"
+            value={parkingSpace.pricePerHour}
+            onChange={changeHandler}
+            fullWidth
+          />
+        </div>
 
-        <TextField
-          label="Size"
-          name="size"
-          value={parkingSpace.size}
-          onChange={handleChange}
-          fullWidth
-        />
-
-        <FormControl fullWidth>
-          <InputLabel id="availability-label">Availability</InputLabel>
-          <Select
-            labelId="availability-label"
-            name="isAvailable"
-            value={String(parkingSpace.isAvailable)}
-            onChange={(e) =>
-              setParkingSpace((prev) => ({
-                ...prev,
-                isAvailable: e.target.value === "true",
-              }))
-            }
+        <div className="button-container">
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleSaveBtnClick}
           >
-            <MenuItem value="true">Available</MenuItem>
-            <MenuItem value="false">Not Available</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="parking-lot-select-label">Parking Lot</InputLabel>
-          <Select
-            labelId="parking-lot-select-label"
-            name="parkingLotId"
-            value={parkingSpace.parkingLotId || ""}
-            onChange={handleSelectChange}
-          >
-            {parkingLots.map((lot) => (
-              <MenuItem key={lot.id} value={lot.id}>
-                {lot.name} ({lot.address})
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>
-          <Button variant="outlined" color="secondary" onClick={handleBack}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleBackBtnClick}
+          >
             Back
           </Button>
         </div>

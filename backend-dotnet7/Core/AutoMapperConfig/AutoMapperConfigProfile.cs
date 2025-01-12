@@ -45,6 +45,9 @@ namespace backend_dotnet7.Core.AutoMapperConfig
 
             CreateMap<AvailabilityMonitorDto, AvailabilityMonitor>();
             CreateMap<AvailabilityMonitor, AvailabilityMonitorDto>();
+
+
+
         }
     }
 }

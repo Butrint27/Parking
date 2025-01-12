@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend_dotnet7.Migrations
 {
     /// <inheritdoc />
-    public partial class moduliParkingSpace : Migration
+    public partial class krijovaKLasatEReja : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,9 +37,9 @@ namespace backend_dotnet7.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastCheckedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    DownTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    CheckInterval = table.Column<TimeSpan>(type: "time", nullable: false),
+                    UpTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DownTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CheckInterval = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ParkingSpaceId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

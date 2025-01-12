@@ -44,7 +44,7 @@ import AddParkingSpot from "../pages/parkingSpot/AddParkingSpot.page";
 import ParkingReservationManager from "../pages/parkingReservationManager/ParkingReservationManger.page";
 import EditParkingReservationManager from "../pages/parkingReservationManager/EditParkingReservationManager.page";
 import AddParkingReservationManager from "../pages/parkingReservationManager/AddParkingReservationManager.page";
-import ParkingSpaces from "../pages/parkingSpace/ParkingSpaces.page";
+import ParkingSpaces from "../pages/parkingSpace/ParkingSpace.page";
 import AddParkingSpace from "../pages/parkingSpace/AddParkingSpace.page";
 import EditParkingSpace from "../pages/parkingSpace/EditParkingSpace.page";
 import AvailabilityMonitor from "../pages/availabilityMonitor/AvailabilityMonitor.page";
@@ -187,7 +187,10 @@ const GlobalRouter = () => {
                 </Suspense>
               }
             />
-            <Route path="edit/:id" element={<EditParkingReservationManager />} />
+            <Route
+              path="edit/:id"
+              element={<EditParkingReservationManager />}
+            />
             <Route path="add" element={<AddParkingReservationManager />} />
           </Route>
         </Route>

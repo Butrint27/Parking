@@ -1,134 +1,205 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { TextField, Button } from "@mui/material";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { PATH_DASHBOARD } from "../../routes/paths";
 
 type AvailabilityMonitor = {
-  id: string;
-  name: string;
+  id: number;
   status: string;
+  lastCheckedTime: string;
+  upTime: string;
+  downTime: string;
+  checkInterval: string;
+  parkingSpaceId: number;
 };
 
+type ParkingSpace = {
+  id: number;
+  name: string;
+  location: string;
+};
+
+const statuses = [
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
+];
+
 const EditAvailabilityMonitor: React.FC = () => {
-  const [availabilityMonitor, setAvailabilityMonitor] = useState<Partial<AvailabilityMonitor>>({
-    name: "",
+  const [monitor, setMonitor] = useState<AvailabilityMonitor>({
+    id: 0,
     status: "",
+    lastCheckedTime: "",
+    upTime: "",
+    downTime: "",
+    checkInterval: "",
+    parkingSpaceId: 0,
   });
 
+  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAvailabilityMonitor({
-      ...availabilityMonitor,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const getAvailabilityMonitorById = async () => {
+  const getMonitorById = async () => {
     try {
       const response = await axios.get<AvailabilityMonitor>(
         `https://localhost:7024/api/AvailabilityMonitor/${id}`
       );
-      const { data } = response;
-      setAvailabilityMonitor({
-        name: data.name,
-        status: data.status,
-      });
+      setMonitor(response.data);
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was an issue fetching the availability monitor details.",
-        confirmButtonText: "OK",
-      });
+      console.error("Error fetching availability monitor:", error);
+    }
+  };
+
+  const fetchParkingSpaces = async () => {
+    try {
+      const response = await axios.get<ParkingSpace[]>(
+        "https://localhost:7024/api/ParkingSpace/Get"
+      );
+      setParkingSpaces(response.data);
+    } catch (error) {
+      console.error("Error fetching parking spaces:", error);
     }
   };
 
   useEffect(() => {
     if (id) {
-      getAvailabilityMonitorById();
+      getMonitorById();
+      fetchParkingSpaces();
     }
   }, [id]);
 
-  const handleSaveBtnClick = async () => {
-    if (availabilityMonitor.name === "" || availabilityMonitor.status === "") {
-      Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Please fill in all fields.",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
+  const handleChange = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
+  ) => {
+    const { name, value } = event.target;
 
+    setMonitor((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (event: any) => {
+    const { name, value } = event.target;
+    setMonitor((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSave = async () => {
     try {
-      const data: Partial<AvailabilityMonitor> = {
-        name: availabilityMonitor.name,
-        status: availabilityMonitor.status,
-      };
-      await axios.put(`https://localhost:7024/api/AvailabilityMonitor/${id}`, data);
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: "Availability monitor updated successfully.",
-        confirmButtonText: "OK",
-      }).then(() => {
-        navigate(-1);
+      if (!monitor.status || !monitor.lastCheckedTime) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      await axios.put(
+        `https://localhost:7024/api/AvailabilityMonitor/${id}`,
+        monitor
+      );
+      navigate(PATH_DASHBOARD.availabilityMonitor, {
+        state: { message: "Availability Monitor updated successfully!" },
       });
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was an issue updating the availability monitor.",
-        confirmButtonText: "OK",
-      });
+      console.error("Error updating availability monitor:", error);
+      alert("Error updating availability monitor.");
     }
   };
 
-  const handleBackBtnClick = () => {
+  const handleBack = () => {
     navigate(-1);
   };
 
   return (
-    <div className="edit-availability-monitor">
-      <div className="edit-availability-monitor-content">
-        <h2>Edit Availability Monitor</h2>
-        <div className="form">
-          <TextField
-            autoComplete="off"
-            label="Name"
-            variant="outlined"
-            name="name"
-            value={availabilityMonitor.name}
-            onChange={changeHandler}
-            fullWidth
-          />
-          <TextField
-            autoComplete="off"
-            label="Status"
-            variant="outlined"
-            name="status"
-            value={availabilityMonitor.status}
-            onChange={changeHandler}
-            fullWidth
-          />
-        </div>
+    <div style={{ padding: "20px" }}>
+      <h2>Edit Availability Monitor</h2>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          maxWidth: "400px",
+        }}
+      >
+        <TextField
+          label="Status"
+          name="status"
+          value={monitor.status}
+          onChange={handleChange}
+          fullWidth
+        />
 
-        <div className="button-container">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleSaveBtnClick}
+        <TextField
+          label="Last Checked Time"
+          name="lastCheckedTime"
+          type="datetime-local"
+          value={monitor.lastCheckedTime}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+
+        <TextField
+          label="Up Time"
+          name="upTime"
+          type="datetime-local"
+          value={monitor.upTime}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+
+        <TextField
+          label="Down Time"
+          name="downTime"
+          type="datetime-local"
+          value={monitor.downTime}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+
+        <TextField
+          label="Check Interval"
+          name="checkInterval"
+          type="text"
+          value={monitor.checkInterval}
+          onChange={handleChange}
+          fullWidth
+        />
+
+        <FormControl fullWidth>
+          <InputLabel id="parking-space-select-label">Parking Space</InputLabel>
+          <Select
+            labelId="parking-space-select-label"
+            name="parkingSpaceId"
+            value={monitor.parkingSpaceId || ""}
+            onChange={handleSelectChange}
           >
+            {parkingSpaces.map((space) => (
+              <MenuItem key={space.id} value={space.id}>
+                {`${space.name} - ${space.location}`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleBackBtnClick}
-          >
+          <Button variant="outlined" color="secondary" onClick={handleBack}>
             Back
           </Button>
         </div>

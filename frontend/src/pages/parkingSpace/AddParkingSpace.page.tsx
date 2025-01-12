@@ -1,102 +1,63 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Select,
-  MenuItem,
-  TextField,
   Button,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
-type FormValues = {
-  spaceNumber: string;
+type ParkingSpace = {
+  id: string;
+  location: string;
   size: string;
   status: string;
+  createdAt: string;
+  updatedAt: string;
+  pricePerHour: number;
 };
 
-type ParkingSize = {
-  label: string;
-  value: string;
-};
+const BASE_URL = "https://localhost:7024/api/ParkingSpace/Create"; // Adjust to your API
 
-export const statuses = [
-  { label: "Available", value: "available" },
-  { label: "Occupied", value: "occupied" },
-];
-
-export const sizes = [
-  { label: "Small", value: "small" },
-  { label: "Medium", value: "medium" },
-  { label: "Large", value: "large" },
-];
-
-const initialValues = {
-  spaceNumber: "",
-  size: "",
-  status: "",
-};
-
-export const AddParkingSpace = () => {
+const AddParkingSpace: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>(initialValues);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formValues, setFormValues] = useState<Partial<ParkingSpace>>({
+    location: "",
+    size: "",
+    status: "",
+    createdAt: new Date().toISOString().split("T")[0], // Default to today
+    updatedAt: new Date().toISOString().split("T")[0], // Default to today
+    pricePerHour: 0,
+  });
 
   const navigate = useNavigate();
 
-  // Handle form input changes
   const handleInputChange = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | { target: { name: string; value: string } }
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-
     setFormValues((prevValues) => ({
       ...prevValues,
       [name]: value,
     }));
   };
 
-  const isFormValid = () => {
-    const { spaceNumber, size, status } = formValues;
-
-    return (
-      spaceNumber.trim() !== "" &&
-      size.trim() !== "" &&
-      status.trim() !== ""
-    );
-  };
-
-  // Add a new parking space
   const addNewParkingSpace = async () => {
     try {
       setIsAdding(true);
-      setError(null);
-      setSuccessMessage(null);
-
-      await axios.post("https://localhost:7024/api/ParkingSpace/Create", formValues);
-
-      setSuccessMessage("Parking space added successfully!");
-      setFormValues(initialValues);
-      navigate(PATH_DASHBOARD.parkingSpace);
-    } catch (error: any) {
-      console.error("Error adding parking space:", error);
-      setError(
-        error.response?.data?.message ||
-          "Error adding parking space. Please try again."
-      );
-    } finally {
+      await axios.post(BASE_URL, formValues);
       setIsAdding(false);
+      navigate(PATH_DASHBOARD.parkingSpace); // Redirect to the parking spaces list page
+    } catch (error) {
+      console.error("Error adding new parking space:", error);
     }
   };
 
@@ -121,33 +82,14 @@ export const AddParkingSpace = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {error && (
-              <TableRow>
-                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
-                  {error}
-                </TableCell>
-              </TableRow>
-            )}
-            {successMessage && (
-              <TableRow>
-                <TableCell
-                  colSpan={2}
-                  align="center"
-                  style={{ color: "green" }}
-                >
-                  {successMessage}
-                </TableCell>
-              </TableRow>
-            )}
             <TableRow>
-              <TableCell>Space Number</TableCell>
+              <TableCell>Location</TableCell>
               <TableCell>
                 <TextField
-                  name="spaceNumber"
-                  type="text"
+                  name="location"
+                  value={formValues.location || ""}
                   onChange={handleInputChange}
-                  value={formValues.spaceNumber}
-                  placeholder="Space Number"
+                  placeholder="Location"
                   fullWidth
                 />
               </TableCell>
@@ -155,53 +97,76 @@ export const AddParkingSpace = () => {
             <TableRow>
               <TableCell>Size</TableCell>
               <TableCell>
-                <Select
+                <TextField
                   name="size"
-                  value={formValues.size}
-                  onChange={(e) =>
-                    handleInputChange(
-                      e as { target: { name: string; value: string } }
-                    )
-                  }
+                  value={formValues.size || ""}
+                  onChange={handleInputChange}
+                  placeholder="Size"
                   fullWidth
-                >
-                  {sizes.map((size) => (
-                    <MenuItem key={size.value} value={size.value}>
-                      {size.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                />
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>
-                <Select
+                <TextField
                   name="status"
-                  value={formValues.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      e as { target: { name: string; value: string } }
-                    )
-                  }
+                  value={formValues.status || ""}
+                  onChange={handleInputChange}
+                  placeholder="Status"
                   fullWidth
-                >
-                  {statuses.map((status) => (
-                    <MenuItem key={status.value} value={status.value}>
-                      {status.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Created At</TableCell>
+              <TableCell>
+                <TextField
+                  name="createdAt"
+                  value={formValues.createdAt || ""}
+                  onChange={handleInputChange}
+                  type="date"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Updated At</TableCell>
+              <TableCell>
+                <TextField
+                  name="updatedAt"
+                  value={formValues.updatedAt || ""}
+                  onChange={handleInputChange}
+                  type="date"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Price Per Hour</TableCell>
+              <TableCell>
+                <TextField
+                  name="pricePerHour"
+                  value={formValues.pricePerHour || ""}
+                  onChange={handleInputChange}
+                  placeholder="Price Per Hour"
+                  type="number"
+                  fullWidth
+                />
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
-                  disabled={isAdding || !isFormValid()}
+                  disabled={isAdding}
                   onClick={addNewParkingSpace}
                 >
-                  {isAdding ? "Adding parking space..." : "Add Parking Space"}
+                  {isAdding
+                    ? "Adding new parking space..."
+                    : "Add Parking Space"}
                 </Button>
               </TableCell>
             </TableRow>

@@ -12,8 +12,8 @@ using backend_dotnet7.Core.DbContext;
 namespace backend_dotnet7.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250111145429_updateDataType")]
-    partial class updateDataType
+    [Migration("20250112160530_testPerDb")]
+    partial class testPerDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,41 +238,6 @@ namespace backend_dotnet7.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.AvailabilityMonitor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CheckInterval")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DownTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastCheckedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ParkingSpaceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParkingSpaceId")
-                        .IsUnique();
-
-                    b.ToTable("AvailabilityMonitors");
-                });
-
             modelBuilder.Entity("backend_dotnet7.Core.Entities.Invoice", b =>
                 {
                     b.Property<int>("Id")
@@ -380,69 +345,6 @@ namespace backend_dotnet7.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ParkingReservationManagers");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpace", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PricePerHour")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ParkingSpaces");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpaceManager", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Kontakti")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Pagesa")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ParkingSpaceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParkingSpaceId");
-
-                    b.ToTable("ParkingSpaceManagers");
                 });
 
             modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpot", b =>
@@ -569,6 +471,22 @@ namespace backend_dotnet7.Migrations
                     b.ToTable("Reservations");
                 });
 
+            modelBuilder.Entity("backend_dotnet7.Core.Entities.TesetPerDb", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MyProperty1")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tesetPerDbs");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -620,28 +538,6 @@ namespace backend_dotnet7.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.AvailabilityMonitor", b =>
-                {
-                    b.HasOne("backend_dotnet7.Core.Entities.ParkingSpace", "ParkingSpace")
-                        .WithOne("AvailabilityMonitor")
-                        .HasForeignKey("backend_dotnet7.Core.Entities.AvailabilityMonitor", "ParkingSpaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParkingSpace");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpaceManager", b =>
-                {
-                    b.HasOne("backend_dotnet7.Core.Entities.ParkingSpace", "ParkingSpace")
-                        .WithMany("ParkingSpaceManagers")
-                        .HasForeignKey("ParkingSpaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParkingSpace");
-                });
-
             modelBuilder.Entity("backend_dotnet7.Core.Entities.Payment", b =>
                 {
                     b.HasOne("backend_dotnet7.Core.Entities.Invoice", "Invoice")
@@ -688,14 +584,6 @@ namespace backend_dotnet7.Migrations
             modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingReservationManager", b =>
                 {
                     b.Navigation("Reservations");
-                });
-
-            modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpace", b =>
-                {
-                    b.Navigation("AvailabilityMonitor")
-                        .IsRequired();
-
-                    b.Navigation("ParkingSpaceManagers");
                 });
 
             modelBuilder.Entity("backend_dotnet7.Core.Entities.ParkingSpot", b =>

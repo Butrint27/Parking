@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -13,139 +13,179 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   DialogContentText,
-  Stack,
+  DialogTitle,
 } from "@mui/material";
-import Swal from "sweetalert2";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import { format } from "date-fns";
+
+const API_BASE_URL = "https://localhost:7024/api";
 
 // Define the types
-type Availability = {
-  id: string;
+export type AvailabilityMonitor = {
+  id: number;
   status: string;
-  date: string;
-  details: string;
+  lastCheckedTime: string;
+  upTime: string;
+  downTime: string;
+  checkInterval: string;
+  parkingSpaceId: number;
 };
 
-const AvailabilityMonitor: React.FC = () => {
-  const [availabilityData, setAvailabilityData] = useState<Availability[]>([]);
-  const [selectedAvailabilityID, setSelectedAvailabilityID] = useState<string | null>(null);
-  const [openDialog, setOpenDialog] = useState(false);
+export type ParkingSpace = {
+  id: number;
+  location: string;
+};
 
-  const baseUrl = "https://localhost:7024/api/AvailabilityMonitor/Get"; // replace with your actual URL
-  const deleteURL = "https://localhost:7024/api/AvailabilityMonitor"; // replace with your actual URL
+const AvailabilityMonitors = () => {
+  const [availabilityMonitors, setAvailabilityMonitors] = useState<
+    AvailabilityMonitor[] | null
+  >(null);
+  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
+  const [open, setOpen] = useState(false);
+  const [selectedMonitorId, setSelectedMonitorId] = useState<number | null>(
+    null
+  );
 
-  const location = useLocation();
   const redirect = useNavigate();
 
-  // Fetch the availability data
-  const fetchAvailabilityData = async () => {
+  // Fetch data from APIs
+  const fetchAvailabilityMonitors = async () => {
     try {
-      const response = await axios.get<Availability[]>(baseUrl);
-      setAvailabilityData(response.data);
-      if (location?.state) {
-        Swal.fire({
-          icon: "success",
-          title: location?.state?.message,
-        });
-        redirect(location.pathname, { replace: true });
-      }
+      const res = await axios.get(`${API_BASE_URL}/AvailabilityMonitor/Get`);
+      setAvailabilityMonitors(res.data);
     } catch (error) {
-      alert("An error occurred while fetching availability data.");
+      console.error("Error fetching availability monitors:", error);
     }
   };
 
-  // Handle delete click
-  const handleDeleteClick = (id: string) => {
-    setSelectedAvailabilityID(id);
-    setOpenDialog(true);
+  const fetchParkingSpaces = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/ParkingSpace/Get`);
+      setParkingSpaces(res.data);
+    } catch (error) {
+      console.error("Error fetching parking spaces:", error);
+    }
   };
 
-  // Close dialog
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedAvailabilityID(null);
+  // Delete availability monitor
+  const handleDeleteClick = (id: number) => {
+    setSelectedMonitorId(id);
+    setOpen(true);
   };
 
-  // Handle delete confirmation
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedMonitorId(null);
+  };
+
   const handleDeleteConfirm = async () => {
-    if (selectedAvailabilityID) {
+    if (selectedMonitorId) {
       try {
-        await axios.delete(`${deleteURL}/${selectedAvailabilityID}`);
-        setAvailabilityData((prevData) =>
-          prevData.filter((data) => data.id !== selectedAvailabilityID)
+        await axios.delete(
+          `${API_BASE_URL}/AvailabilityMonitor/${selectedMonitorId}`
+        );
+        setAvailabilityMonitors(
+          (prev) =>
+            prev?.filter((monitor) => monitor.id !== selectedMonitorId) || null
         );
       } catch (error) {
-        console.error("Failed to delete availability data:", error);
+        console.error("Error deleting availability monitor:", error);
       } finally {
-        handleCloseDialog();
+        handleClose();
       }
     }
   };
 
   useEffect(() => {
-    fetchAvailabilityData();
+    fetchAvailabilityMonitors();
+    fetchParkingSpaces();
   }, []);
 
   return (
     <Box sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
-          fullWidth
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.availabilityMonitor}/add`)}
-          sx={{ alignSelf: "flex-end" }}
         >
-          Add New Availability
+          Add New Monitor
         </Button>
-
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Details</TableCell>
+                <TableCell>Last Checked</TableCell>
+                <TableCell>Up Time</TableCell>
+                <TableCell>Down Time</TableCell>
+                <TableCell>Check Interval</TableCell>
+                <TableCell>Parking Space</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {availabilityData.map((data) => (
-                <TableRow key={data.id}>
-                  <TableCell>{data.id}</TableCell>
-                  <TableCell>{data.status}</TableCell>
-                  <TableCell>{data.date}</TableCell>
-                  <TableCell>{data.details}</TableCell>
-                  <TableCell>
-                    <Link to={`${PATH_DASHBOARD.availabilityMonitor}/edit/${data.id}`}>
-                      <Button size="small">Edit</Button>
-                    </Link>
-                    <Button
-                      size="small"
-                      onClick={() => handleDeleteClick(data.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {availabilityMonitors?.map((monitor) => {
+                const parkingSpace = parkingSpaces.find(
+                  (space) => space.id === monitor.parkingSpaceId
+                );
+
+                return (
+                  <TableRow key={monitor.id}>
+                    <TableCell>{monitor.id}</TableCell>
+                    <TableCell>{monitor.status}</TableCell>
+                    <TableCell>
+                      {monitor.lastCheckedTime
+                        ? format(
+                            new Date(monitor.lastCheckedTime),
+                            "dd-MM-yyyy HH:mm"
+                          )
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      {monitor.upTime
+                        ? format(new Date(monitor.upTime), "dd-MM-yyyy HH:mm")
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      {monitor.downTime
+                        ? format(new Date(monitor.downTime), "dd-MM-yyyy HH:mm")
+                        : ""}
+                    </TableCell>
+                    <TableCell>{monitor.checkInterval}</TableCell>
+                    <TableCell>{parkingSpace?.location || "Unknown"}</TableCell>
+                    <TableCell>
+                      <Link
+                        to={`${PATH_DASHBOARD.availabilityMonitor}/edit/${monitor.id}`}
+                      >
+                        <Button size="small">Edit</Button>
+                      </Link>
+                      <Button
+                        size="small"
+                        onClick={() => handleDeleteClick(monitor.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Delete Availability</DialogTitle>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Delete Availability Monitor</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete this availability? This action
-              cannot be undone.
+              Are you sure you want to delete this availability monitor? This
+              action cannot be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleDeleteConfirm} color="secondary">
               Confirm
             </Button>
@@ -156,4 +196,4 @@ const AvailabilityMonitor: React.FC = () => {
   );
 };
 
-export default AvailabilityMonitor;
+export default AvailabilityMonitors;
