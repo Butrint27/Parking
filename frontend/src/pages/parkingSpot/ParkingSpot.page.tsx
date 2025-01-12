@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -13,142 +13,136 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
+  DialogContentText,
+  Stack,
 } from "@mui/material";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
-const API_BASE_URL = "https://localhost:7024/api";
-
-// Define the types
-export type ParkingSpot = {
-  id: string;
+type ParkingSpot = {
+  id: number;
   location: string;
+  size: string;
   status: string;
-  reservationId: string | null;
+  pricePerHour: number;
 };
 
-export type Reservation = {
-  id: string;
-  customerName: string;
-  startTime: string;
-  endTime: string;
-};
+const ParkingSpot: React.FC = () => {
+  const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>([]);
+  const [selectedParkingSpotID, setSelectedParkingSpotID] = useState<
+    number | null
+  >(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-const ParkingSpots = () => {
-  const [parkingSpots, setParkingSpots] = useState<ParkingSpot[] | null>(null);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [open, setOpen] = useState(false);
-  const [selectedSpotId, setSelectedSpotId] = useState<string | null>(null);
-
+  const baseUrl = "https://localhost:7024/api/ParkingSpot"; // Replace with your actual URL
+  const location = useLocation();
   const redirect = useNavigate();
 
-  // Fetch data from APIs
   const fetchParkingSpots = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/ParkingSpot/Get`);
-      setParkingSpots(res.data);
+      const response = await axios.get<ParkingSpot[]>(`${baseUrl}/Get`);
+      setParkingSpots(response.data);
+      if (location?.state) {
+        Swal.fire({
+          icon: "success",
+          title: location?.state?.message,
+        });
+        redirect(location.pathname, { replace: true });
+      }
     } catch (error) {
-      console.error("Error fetching parking spots:", error);
+      alert("An error occurred while fetching parking spots.");
     }
   };
 
-  const fetchReservations = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/Reservation/Get`);
-      setReservations(res.data);
-    } catch (error) {
-      console.error("Error fetching reservations:", error);
-    }
+  const handleDeleteClick = (id: number) => {
+    setSelectedParkingSpotID(id);
+    setOpenDialog(true);
   };
 
-  // Delete parking spot
-  const handleDeleteClick = (id: string) => {
-    setSelectedSpotId(id);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedSpotId(null);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedParkingSpotID(null);
   };
 
   const handleDeleteConfirm = async () => {
-    if (selectedSpotId) {
+    if (selectedParkingSpotID !== null) {
       try {
-        await axios.delete(`${API_BASE_URL}/ParkingSpot/${selectedSpotId}`);
-        setParkingSpots(
-          (prev) => prev?.filter((spot) => spot.id !== selectedSpotId) || null
+        await axios.delete(`${baseUrl}/${selectedParkingSpotID}`);
+        setParkingSpots((prevSpots) =>
+          prevSpots.filter((spot) => spot.id !== selectedParkingSpotID)
         );
+        Swal.fire({
+          icon: "success",
+          title: "Parking Spot deleted successfully!",
+        });
       } catch (error) {
-        console.error("Error deleting parking spot:", error);
+        console.error("Failed to delete parking spot:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Failed to delete parking spot.",
+        });
       } finally {
-        handleClose();
+        handleCloseDialog();
       }
     }
   };
 
   useEffect(() => {
     fetchParkingSpots();
-    fetchReservations();
   }, []);
 
   return (
     <Box sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          fullWidth
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.parkingSpot}/add`)}
+          sx={{ alignSelf: "flex-end" }}
         >
           Add New Parking Spot
         </Button>
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Location</TableCell>
+                <TableCell>Size</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Reservation</TableCell>
+                <TableCell>Price Per Hour</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {parkingSpots?.map((spot) => {
-                const reservation = reservations.find(
-                  (res) => res.id === spot.reservationId
-                );
-
-                return (
-                  <TableRow key={spot.id}>
-                    <TableCell>{spot.id}</TableCell>
-                    <TableCell>{spot.location}</TableCell>
-                    <TableCell>{spot.status}</TableCell>
-                    <TableCell>
-                      {reservation
-                        ? `Reserved by ${reservation.customerName} (Start: ${reservation.startTime}, End: ${reservation.endTime})`
-                        : "Available"}
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`${PATH_DASHBOARD.parkingSpot}/edit/${spot.id}`}>
-                        <Button size="small">Edit</Button>
-                      </Link>
-                      <Button
-                        size="small"
-                        onClick={() => handleDeleteClick(spot.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {parkingSpots.map((spot) => (
+                <TableRow key={spot.id}>
+                  <TableCell>{spot.id}</TableCell>
+                  <TableCell>{spot.location}</TableCell>
+                  <TableCell>{spot.size}</TableCell>
+                  <TableCell>{spot.status}</TableCell>
+                  <TableCell>{spot.pricePerHour.toFixed(2)} €</TableCell>
+                  <TableCell>
+                    <Link to={`${PATH_DASHBOARD.parkingSpot}/edit/${spot.id}`}>
+                      <Button size="small">Edit</Button>
+                    </Link>
+                    <Button
+                      size="small"
+                      onClick={() => handleDeleteClick(spot.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
-        <Dialog open={open} onClose={handleClose}>
+
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>Delete Parking Spot</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -157,7 +151,7 @@ const ParkingSpots = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
             <Button onClick={handleDeleteConfirm} color="secondary">
               Confirm
             </Button>
@@ -168,4 +162,4 @@ const ParkingSpots = () => {
   );
 };
 
-export default ParkingSpots;
+export default ParkingSpot;

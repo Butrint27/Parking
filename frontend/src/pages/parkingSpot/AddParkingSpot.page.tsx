@@ -1,115 +1,58 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Select,
-  MenuItem,
-  TextField,
   Button,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { PATH_DASHBOARD } from "../../routes/paths";
 
-type FormValues = {
+type ParkingSpot = {
+  id: number;
   location: string;
+  size: string;
   status: string;
-  reservationId: string | null;
+  pricePerHour: number;
 };
 
-type Reservation = {
-  id: string;
-  customerName: string;
-  startTime: string;
-  endTime: string;
-};
+const BASE_URL = "https://localhost:7024/api/ParkingSpot/Create"; // Adjust to your API
 
-export const statuses = [
-  { label: "Available", value: "Available" },
-  { label: "Occupied", value: "Occupied" },
-  { label: "Reserved", value: "Reserved" },
-];
-
-const initialValues: FormValues = {
-  location: "",
-  status: "",
-  reservationId: null,
-};
-
-export const AddParkingSpot = () => {
+const AddParkingSpot: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>(initialValues);
-  const [reservationsList, setReservationsList] = useState<Reservation[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formValues, setFormValues] = useState<Partial<ParkingSpot>>({
+    location: "",
+    size: "",
+    status: "",
+    pricePerHour: 0,
+  });
 
   const navigate = useNavigate();
 
-  // Fetch reservations from the API
-  const fetchReservations = async () => {
-    try {
-      const res = await axios.get<Reservation[]>(
-        "https://localhost:7024/api/Reservation/Get"
-      );
-      setReservationsList(res.data);
-    } catch (error) {
-      console.error("Error fetching reservations:", error);
-      setError("Error fetching reservations. Please try again.");
-    }
-  };
-
-  useEffect(() => {
-    fetchReservations();
-  }, []);
-
-  // Handle form input changes
   const handleInputChange = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | { target: { name: string; value: string } }
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-
     setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: value,
+      [name]: name === "pricePerHour" ? parseFloat(value) : value,
     }));
   };
 
-  const isFormValid = () => {
-    const { location, status } = formValues;
-    return location.trim() !== "" && status.trim() !== "";
-  };
-
-  // Add a new parking spot
   const addNewParkingSpot = async () => {
     try {
       setIsAdding(true);
-      setError(null);
-      setSuccessMessage(null);
-
-      await axios.post(
-        "https://localhost:7024/api/ParkingSpot/Create",
-        formValues
-      );
-
-      setSuccessMessage("Parking spot added successfully!");
-      setFormValues(initialValues);
-      navigate(PATH_DASHBOARD.parkingSpot);
-    } catch (error: any) {
-      console.error("Error adding new parking spot:", error);
-      setError(
-        error.response?.data?.message ||
-          "Error adding new parking spot. Please try again."
-      );
-    } finally {
+      await axios.post(BASE_URL, formValues);
       setIsAdding(false);
+      navigate(-1); // Redirect to the parkingSpots list page
+    } catch (error) {
+      console.log("Error adding new parking spot:", error);
     }
   };
 
@@ -134,32 +77,26 @@ export const AddParkingSpot = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {error && (
-              <TableRow>
-                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
-                  {error}
-                </TableCell>
-              </TableRow>
-            )}
-            {successMessage && (
-              <TableRow>
-                <TableCell
-                  colSpan={2}
-                  align="center"
-                  style={{ color: "green" }}
-                >
-                  {successMessage}
-                </TableCell>
-              </TableRow>
-            )}
             <TableRow>
               <TableCell>Location</TableCell>
               <TableCell>
                 <TextField
                   name="location"
+                  value={formValues.location || ""}
                   onChange={handleInputChange}
-                  value={formValues.location}
                   placeholder="Location"
+                  fullWidth
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Size</TableCell>
+              <TableCell>
+                <TextField
+                  name="size"
+                  value={formValues.size || ""}
+                  onChange={handleInputChange}
+                  placeholder="Size (e.g., Small, Medium, Large)"
                   fullWidth
                 />
               </TableCell>
@@ -167,60 +104,38 @@ export const AddParkingSpot = () => {
             <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>
-                <Select
+                <TextField
                   name="status"
-                  value={formValues.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      e as { target: { name: string; value: string } }
-                    )
-                  }
+                  value={formValues.status || ""}
+                  onChange={handleInputChange}
+                  placeholder="Status (e.g., Available, Occupied)"
                   fullWidth
-                >
-                  {statuses.map((status) => (
-                    <MenuItem key={status.value} value={status.value}>
-                      {status.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Reservation</TableCell>
+              <TableCell>Price Per Hour</TableCell>
               <TableCell>
-
-              <Select
-  name="reservationId"
-  value={formValues.reservationId || ""}
-  onChange={(e) =>
-    handleInputChange(
-      e as { target: { name: string; value: string } }
-    )
-  }
-  fullWidth
->
-{reservationsList.length === 0 && (
-  <MenuItem value="" disabled>
-    No Reservations Available
-  </MenuItem>
-)}
-  <MenuItem value="">None</MenuItem>
-  {reservationsList.map((reservation) => (
-    <MenuItem key={reservation.id} value={reservation.id}>
-      {`${reservation.customerName} (Start: ${reservation.startTime}, End: ${reservation.endTime})`}
-    </MenuItem>
-  ))}
-</Select>
+                <TextField
+                  name="pricePerHour"
+                  type="number"
+                  value={formValues.pricePerHour || ""}
+                  onChange={handleInputChange}
+                  placeholder="Price Per Hour"
+                  fullWidth
+                />
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
-                  disabled={isAdding || !isFormValid()}
+                  disabled={isAdding}
                   onClick={addNewParkingSpot}
                 >
-                  {isAdding ? "Adding parking spot..." : "Add parking spot"}
+                  {isAdding
+                    ? "Adding new parking spot..."
+                    : "Add new parking spot"}
                 </Button>
               </TableCell>
             </TableRow>

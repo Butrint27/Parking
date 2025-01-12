@@ -18,44 +18,48 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { PATH_DASHBOARD } from "../../routes/paths";
 import { format } from "date-fns";
+import { PATH_DASHBOARD } from "../../routes/paths";
 
 const API_BASE_URL = "https://localhost:7024/api";
 
-// Define the types
+// Define the Reservation type
 export type Reservation = {
   id: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  totalAmount: number;
-  createdAt: string;
-  updatedAt: string;
-  parkingSpotId: string;
-  parkingReservationManagerId: string;
+  startDate: string; // ISO format date
+  endDate: string; // ISO format date
+  status: string; // Reservation status
+  totalAmount: number; // Total cost of the reservation
+  createdAt: string; // Creation timestamp
+  updatedAt: string; // Last update timestamp
+  parkingSpotId: string; // Foreign key to ParkingSpot
+  parkingReservationManagerId: string; // Foreign key to ParkingReservationManager
 };
 
+// Define the ParkingSpot type
 export type ParkingSpot = {
   id: string;
   location: string;
-  size: string;
-  status: string;
+  size: string; // E.g., "small", "medium", "large"
+  status: string; // E.g., "available", "occupied"
   pricePerHour: number;
 };
 
+// Define the ParkingReservationManager type
 export type ParkingReservationManager = {
   id: string;
   managerName: string;
   managerContact: string;
 };
 
-const Reservations = () => {
+const Reservation = () => {
   const [reservations, setReservations] = useState<Reservation[] | null>(null);
   const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>([]);
   const [managers, setManagers] = useState<ParkingReservationManager[]>([]);
   const [open, setOpen] = useState(false);
-  const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+  const [selectedReservationId, setSelectedReservationId] = useState<
+    string | null
+  >(null);
 
   const redirect = useNavigate();
 
@@ -80,7 +84,9 @@ const Reservations = () => {
 
   const fetchManagers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/ParkingReservationManager/Get`);
+      const res = await axios.get(
+        `${API_BASE_URL}/ParkingReservationManager/Get`
+      );
       setManagers(res.data);
     } catch (error) {
       console.error("Error fetching managers:", error);
@@ -101,8 +107,12 @@ const Reservations = () => {
   const handleDeleteConfirm = async () => {
     if (selectedReservationId) {
       try {
-        await axios.delete(`${API_BASE_URL}/Reservation/${selectedReservationId}`);
-        setReservations((prev) => prev?.filter((r) => r.id !== selectedReservationId) || null);
+        await axios.delete(
+          `${API_BASE_URL}/Reservation/${selectedReservationId}`
+        );
+        setReservations(
+          (prev) => prev?.filter((r) => r.id !== selectedReservationId) || null
+        );
       } catch (error) {
         console.error("Error deleting reservation:", error);
       } finally {
@@ -135,6 +145,8 @@ const Reservations = () => {
                 <TableCell>End Date</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Total Amount</TableCell>
+                <TableCell>Created At</TableCell>
+                <TableCell>Updated At</TableCell>
                 <TableCell>Parking Spot</TableCell>
                 <TableCell>Manager</TableCell>
                 <TableCell>Actions</TableCell>
@@ -145,7 +157,6 @@ const Reservations = () => {
                 const parkingSpot = parkingSpots.find(
                   (spot) => spot.id === reservation.parkingSpotId
                 );
-
                 const manager = managers.find(
                   (m) => m.id === reservation.parkingReservationManagerId
                 );
@@ -164,15 +175,25 @@ const Reservations = () => {
                         : ""}
                     </TableCell>
                     <TableCell>{reservation.status}</TableCell>
-                    <TableCell>{reservation.totalAmount.toFixed(2)} €</TableCell>
+                    <TableCell>{reservation.totalAmount}</TableCell>
                     <TableCell>
-                      {parkingSpot
-                        ? `${parkingSpot.location} (${parkingSpot.size})`
+                      {reservation.createdAt
+                        ? format(
+                            new Date(reservation.createdAt),
+                            "dd-MM-yyyy HH:mm"
+                          )
                         : "Unknown"}
                     </TableCell>
                     <TableCell>
-                      {manager?.managerName || "Unknown"}
+                      {reservation.updatedAt
+                        ? format(
+                            new Date(reservation.updatedAt),
+                            "dd-MM-yyyy HH:mm"
+                          )
+                        : "Unknown"}
                     </TableCell>
+                    <TableCell>{parkingSpot?.location || "Unknown"}</TableCell>
+                    <TableCell>{manager?.managerName || "Unknown"}</TableCell>
                     <TableCell>
                       <Link
                         to={`${PATH_DASHBOARD.reservations}/edit/${reservation.id}`}
@@ -196,8 +217,8 @@ const Reservations = () => {
           <DialogTitle>Delete Reservation</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete this reservation? This action cannot
-              be undone.
+              Are you sure you want to delete this reservation? This action
+              cannot be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -212,4 +233,4 @@ const Reservations = () => {
   );
 };
 
-export default Reservations;
+export default Reservation;

@@ -18,85 +18,63 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
 const API_BASE_URL = "https://localhost:7024/api";
 
-type ParkingReservation = {
-  id: string;
-  spotId: string;
-  userId: string;
-  startTime: string;
-  endTime: string;
-  status: string;
+// Define the types
+export type ParkingReservationManager = {
+  id: number;
+  managerName: string;
+  managerContact: string;
 };
 
-type ParkingSpot = {
-  id: string;
-  location: string;
-  isAvailable: boolean;
-};
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-const ParkingReservationManager = () => {
-  const [reservations, setReservations] = useState<ParkingReservation[]>([]);
-  const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+const ParkingReservationManager: React.FC = () => {
+  const [managers, setManagers] = useState<ParkingReservationManager[] | null>(
+    null
+  );
   const [open, setOpen] = useState(false);
-  const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+  const [selectedManagerId, setSelectedManagerId] = useState<number | null>(
+    null
+  );
 
-  const navigate = useNavigate();
+  const redirect = useNavigate();
 
-  const fetchReservations = async () => {
+  // Fetch data from APIs
+  const fetchManagers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/ParkingReservation/Get`);
-      setReservations(res.data);
+      const res = await axios.get(
+        `${API_BASE_URL}/ParkingReservationManager/Get`
+      );
+      setManagers(res.data);
     } catch (error) {
-      console.error("Error fetching reservations:", error);
+      console.error("Error fetching parking reservation managers:", error);
     }
   };
 
-  const fetchParkingSpots = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/ParkingSpot/Get`);
-      setParkingSpots(res.data);
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/User/Get`);
-      setUsers(res.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  const handleDeleteClick = (id: string) => {
-    setSelectedReservationId(id);
+  // Delete parking reservation manager
+  const handleDeleteClick = (id: number) => {
+    setSelectedManagerId(id);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setSelectedReservationId(null);
+    setSelectedManagerId(null);
   };
 
   const handleDeleteConfirm = async () => {
-    if (selectedReservationId) {
+    if (selectedManagerId) {
       try {
-        await axios.delete(`${API_BASE_URL}/ParkingReservation/${selectedReservationId}`);
-        setReservations((prev) => prev.filter((r) => r.id !== selectedReservationId));
+        await axios.delete(
+          `${API_BASE_URL}/ParkingReservationManager/${selectedManagerId}`
+        );
+        setManagers(
+          (prev) =>
+            prev?.filter((manager) => manager.id !== selectedManagerId) || null
+        );
       } catch (error) {
-        console.error("Error deleting reservation:", error);
+        console.error("Error deleting parking reservation manager:", error);
       } finally {
         handleClose();
       }
@@ -104,9 +82,7 @@ const ParkingReservationManager = () => {
   };
 
   useEffect(() => {
-    fetchReservations();
-    fetchParkingSpots();
-    fetchUsers();
+    fetchManagers();
   }, []);
 
   return (
@@ -114,55 +90,53 @@ const ParkingReservationManager = () => {
       <Stack direction="column" spacing={2}>
         <Button
           variant="outlined"
-          onClick={() => navigate(`${PATH_DASHBOARD.parkingReservationManagers}/add`)}
+          onClick={() =>
+            redirect(`${PATH_DASHBOARD.parkingReservationManagers}/add`)
+          }
         >
-          Add New Reservation
+          Add New Parking Reservation Manager
         </Button>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Parking Spot</TableCell>
-                <TableCell>User</TableCell>
-                <TableCell>Start Time</TableCell>
-                <TableCell>End Time</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Manager Name</TableCell>
+                <TableCell>Manager Contact</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {reservations.map((reservation) => {
-                const parkingSpot = parkingSpots.find((spot) => spot.id === reservation.spotId);
-                const user = users.find((u) => u.id === reservation.userId);
-
-                return (
-                  <TableRow key={reservation.id}>
-                    <TableCell>{reservation.id}</TableCell>
-                    <TableCell>{parkingSpot?.location || "Unknown"}</TableCell>
-                    <TableCell>{user?.name || "Unknown"}</TableCell>
-                    <TableCell>{format(new Date(reservation.startTime), "dd-MM-yyyy HH:mm")}</TableCell>
-                    <TableCell>{format(new Date(reservation.endTime), "dd-MM-yyyy HH:mm")}</TableCell>
-                    <TableCell>{reservation.status}</TableCell>
-                    <TableCell>
-                      <Link to={`/dashboard/parking-reservations/edit/${reservation.id}`}>
-                        <Button size="small">Edit</Button>
-                      </Link>
-                      <Button size="small" onClick={() => handleDeleteClick(reservation.id)}>
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {managers?.map((manager) => (
+                <TableRow key={manager.id}>
+                  <TableCell>{manager.id}</TableCell>
+                  <TableCell>{manager.managerName}</TableCell>
+                  <TableCell>{manager.managerContact}</TableCell>
+                  <TableCell>
+                    <Link
+                      to={`${PATH_DASHBOARD.parkingReservationManagers}/edit/${manager.id}`}
+                    >
+                      <Button size="small">Edit</Button>
+                    </Link>
+                    <Button
+                      size="small"
+                      onClick={() => handleDeleteClick(manager.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
+
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Delete Reservation</DialogTitle>
+          <DialogTitle>Delete Parking Reservation Manager</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete this reservation? This action cannot be undone.
+              Are you sure you want to delete this manager? This action cannot
+              be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>

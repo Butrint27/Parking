@@ -1,126 +1,52 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Select,
-  MenuItem,
-  TextField,
   Button,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import { ParkingReservationManager } from "./ParkingReservationManger.page";
 
-type FormValues = {
-  parkingSpotId: string;
-  vehicleNumber: string;
-  reservationDate: string;
-  duration: number; // in hours
-  status: string;
-};
-
-type ParkingSpot = {
-  id: string;
-  location: string;
-  isAvailable: boolean;
-};
-
-export const reservationStatuses = [
-  { label: "Confirmed", value: "confirmed" },
-  { label: "Pending", value: "pending" },
-  { label: "Cancelled", value: "cancelled" },
-];
-
-const initialValues = {
-  parkingSpotId: "",
-  vehicleNumber: "",
-  reservationDate: "",
-  duration: 0,
-  status: "",
-};
+const BASE_URL = "https://localhost:7024/api/ParkingReservationManager/Create"; // Adjust to your API
 
 const AddParkingReservationManager: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>(initialValues);
-  const [parkingSpotsList, setParkingSpotsList] = useState<ParkingSpot[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formValues, setFormValues] = useState<
+    Partial<ParkingReservationManager>
+  >({
+    managerName: "",
+    managerContact: "",
+  });
 
   const navigate = useNavigate();
 
-  // Fetch parking spots from the API
-  const fetchParkingSpots = async () => {
-    try {
-      const res = await axios.get<ParkingSpot[]>(
-        "https://localhost:7024/api/ParkingSpot/GetAvailable"
-      );
-      setParkingSpotsList(res.data);
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setError("Error fetching parking spots. Please try again.");
-    }
-  };
-
-  useEffect(() => {
-    fetchParkingSpots();
-  }, []);
-
-  // Handle form input changes
   const handleInputChange = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | { target: { name: string; value: string } }
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-
     setFormValues((prevValues) => ({
       ...prevValues,
       [name]: value,
     }));
   };
 
-  const isFormValid = () => {
-    const { parkingSpotId, vehicleNumber, reservationDate, duration, status } =
-      formValues;
-
-    return (
-      parkingSpotId &&
-      vehicleNumber.trim() !== "" &&
-      reservationDate.trim() !== "" &&
-      duration > 0 &&
-      status.trim() !== ""
-    );
-  };
-
-  // Add a new parking reservation
-  const addNewReservation = async () => {
+  const addNewParkingReservationManager = async () => {
     try {
       setIsAdding(true);
-      setError(null);
-      setSuccessMessage(null);
-
-      await axios.post(
-        "https://localhost:7024/api/ParkingReservation/Create",
-        formValues
-      );
-
-      setSuccessMessage("Reservation added successfully!");
-      setFormValues(initialValues);
-      navigate(PATH_DASHBOARD.parkingReservationManagers);
-    } catch (error: any) {
-      console.error("Error adding new reservation:", error);
-      setError(
-        error.response?.data?.message ||
-          "Error adding new reservation. Please try again."
-      );
-    } finally {
+      await axios.post(BASE_URL, formValues);
       setIsAdding(false);
+      navigate(PATH_DASHBOARD.parkingReservationManagers); // Redirect to the managers list page
+    } catch (error) {
+      console.log("Error adding new parking reservation manager:", error);
     }
   };
 
@@ -140,117 +66,44 @@ const AddParkingReservationManager: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell colSpan={2} align="center">
-                Add New Parking Reservation
+                Add New Parking Reservation Manager
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {error && (
-              <TableRow>
-                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
-                  {error}
-                </TableCell>
-              </TableRow>
-            )}
-            {successMessage && (
-              <TableRow>
-                <TableCell
-                  colSpan={2}
-                  align="center"
-                  style={{ color: "green" }}
-                >
-                  {successMessage}
-                </TableCell>
-              </TableRow>
-            )}
             <TableRow>
-              <TableCell>Parking Spot</TableCell>
-              <TableCell>
-                <Select
-                  name="parkingSpotId"
-                  value={formValues.parkingSpotId}
-                  onChange={(e) =>
-                    handleInputChange(
-                      e as { target: { name: string; value: string } }
-                    )
-                  }
-                  fullWidth
-                >
-                  {parkingSpotsList.map((spot) => (
-                    <MenuItem key={spot.id} value={spot.id}>
-                      {spot.location}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Vehicle Number</TableCell>
+              <TableCell>Manager Name</TableCell>
               <TableCell>
                 <TextField
-                  name="vehicleNumber"
+                  name="managerName"
+                  value={formValues.managerName || ""}
                   onChange={handleInputChange}
-                  value={formValues.vehicleNumber}
-                  placeholder="Vehicle Number"
+                  placeholder="Manager Name"
                   fullWidth
                 />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Reservation Date</TableCell>
+              <TableCell>Manager Contact</TableCell>
               <TableCell>
                 <TextField
-                  name="reservationDate"
-                  type="date"
+                  name="managerContact"
+                  value={formValues.managerContact || ""}
                   onChange={handleInputChange}
-                  value={formValues.reservationDate}
-                  InputLabelProps={{ shrink: true }}
+                  placeholder="Manager Contact"
                   fullWidth
                 />
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>Duration (hours)</TableCell>
-              <TableCell>
-                <TextField
-                  name="duration"
-                  type="number"
-                  onChange={handleInputChange}
-                  value={formValues.duration}
-                  placeholder="Duration"
-                  fullWidth
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Status</TableCell>
-              <TableCell>
-                <Select
-                  name="status"
-                  value={formValues.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      e as { target: { name: string; value: string } }
-                    )
-                  }
-                  fullWidth
-                >
-                  {reservationStatuses.map((status) => (
-                    <MenuItem key={status.value} value={status.value}>
-                      {status.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </TableCell>
-            </TableRow>
+
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
-                  disabled={isAdding || !isFormValid()}
-                  onClick={addNewReservation}
+                  disabled={isAdding}
+                  onClick={addNewParkingReservationManager}
                 >
-                  {isAdding ? "Adding new reservation..." : "Add Reservation"}
+                  {isAdding ? "Adding new manager..." : "Add new manager"}
                 </Button>
               </TableCell>
             </TableRow>

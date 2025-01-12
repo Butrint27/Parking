@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import { statuses } from "./AddReservation.page";
 import { format } from "date-fns";
 
 type Reservation = {
@@ -48,7 +49,6 @@ const EditReservation: React.FC = () => {
   const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>([]);
   const [managers, setManagers] = useState<ParkingReservationManager[]>([]);
   const navigate = useNavigate();
-
   const { id } = useParams();
 
   const getReservationById = async () => {
@@ -118,7 +118,7 @@ const EditReservation: React.FC = () => {
     const { name, value } = event.target;
     setReservation((prev) => ({
       ...prev,
-      [name]: value,
+      [name!]: value,
     }));
   };
 
@@ -128,8 +128,7 @@ const EditReservation: React.FC = () => {
         !reservation.startDate ||
         !reservation.endDate ||
         !reservation.status ||
-        !reservation.parkingSpotId ||
-        !reservation.parkingReservationManagerId
+        !reservation.totalAmount
       ) {
         alert("Please fill all required fields.");
         return;
@@ -167,7 +166,7 @@ const EditReservation: React.FC = () => {
           label="Start Date"
           name="startDate"
           type="date"
-          value={reservation.startDate || ""}
+          value={reservation.startDate}
           onChange={handleChange}
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -177,25 +176,32 @@ const EditReservation: React.FC = () => {
           label="End Date"
           name="endDate"
           type="date"
-          value={reservation.endDate || ""}
+          value={reservation.endDate}
           onChange={handleChange}
           InputLabelProps={{ shrink: true }}
           fullWidth
         />
 
-        <TextField
-          label="Status"
+        <Select
           name="status"
-          value={reservation.status || ""}
-          onChange={handleChange}
+          value={reservation.status}
+          onChange={(e) =>
+            handleChange(e as { target: { name: string; value: string } })
+          }
           fullWidth
-        />
+        >
+          {statuses.map((status) => (
+            <MenuItem key={status.value} value={status.value}>
+              {status.label}
+            </MenuItem>
+          ))}
+        </Select>
 
         <TextField
           label="Total Amount"
           name="totalAmount"
           type="number"
-          value={reservation.totalAmount || ""}
+          value={reservation.totalAmount}
           onChange={handleChange}
           fullWidth
         />
