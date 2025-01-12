@@ -8,6 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Core\Dtos\UserProfile\**" />
+    <Compile Remove="Core\Dtos\User\**" />
+    <Content Remove="Core\Dtos\UserProfile\**" />
+    <Content Remove="Core\Dtos\User\**" />
+    <EmbeddedResource Remove="Core\Dtos\UserProfile\**" />
+    <EmbeddedResource Remove="Core\Dtos\User\**" />
+    <None Remove="Core\Dtos\UserProfile\**" />
+    <None Remove="Core\Dtos\User\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
@@ -17,11 +28,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Core\Dtos\UserProfile\" />
-    <Folder Include="Core\Dtos\User\" />
   </ItemGroup>
 
 </Project>

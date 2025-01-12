@@ -18,55 +18,40 @@ import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 
 type FormValues = {
-  location: string;
+  spaceNumber: string;
+  size: string;
   status: string;
-  reservationId: string | null;
 };
 
-type Reservation = {
-  id: string;
-  customerName: string;
-  startTime: string;
-  endTime: string;
+type ParkingSize = {
+  label: string;
+  value: string;
 };
 
 export const statuses = [
-  { label: "Available", value: "Available" },
-  { label: "Occupied", value: "Occupied" },
-  { label: "Reserved", value: "Reserved" },
+  { label: "Available", value: "available" },
+  { label: "Occupied", value: "occupied" },
 ];
 
-const initialValues: FormValues = {
-  location: "",
+export const sizes = [
+  { label: "Small", value: "small" },
+  { label: "Medium", value: "medium" },
+  { label: "Large", value: "large" },
+];
+
+const initialValues = {
+  spaceNumber: "",
+  size: "",
   status: "",
-  reservationId: null,
 };
 
-export const AddParkingSpot = () => {
+export const AddParkingSpace = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [formValues, setFormValues] = useState<FormValues>(initialValues);
-  const [reservationsList, setReservationsList] = useState<Reservation[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
-
-  // Fetch reservations from the API
-  const fetchReservations = async () => {
-    try {
-      const res = await axios.get<Reservation[]>(
-        "https://localhost:7024/api/Reservation/Get"
-      );
-      setReservationsList(res.data);
-    } catch (error) {
-      console.error("Error fetching reservations:", error);
-      setError("Error fetching reservations. Please try again.");
-    }
-  };
-
-  useEffect(() => {
-    fetchReservations();
-  }, []);
 
   // Handle form input changes
   const handleInputChange = (
@@ -83,30 +68,32 @@ export const AddParkingSpot = () => {
   };
 
   const isFormValid = () => {
-    const { location, status } = formValues;
-    return location.trim() !== "" && status.trim() !== "";
+    const { spaceNumber, size, status } = formValues;
+
+    return (
+      spaceNumber.trim() !== "" &&
+      size.trim() !== "" &&
+      status.trim() !== ""
+    );
   };
 
-  // Add a new parking spot
-  const addNewParkingSpot = async () => {
+  // Add a new parking space
+  const addNewParkingSpace = async () => {
     try {
       setIsAdding(true);
       setError(null);
       setSuccessMessage(null);
 
-      await axios.post(
-        "https://localhost:7024/api/ParkingSpot/Create",
-        formValues
-      );
+      await axios.post("https://localhost:7024/api/ParkingSpace/Create", formValues);
 
-      setSuccessMessage("Parking spot added successfully!");
+      setSuccessMessage("Parking space added successfully!");
       setFormValues(initialValues);
-      navigate(PATH_DASHBOARD.parkingSpot);
+      navigate(PATH_DASHBOARD.parkingSpace);
     } catch (error: any) {
-      console.error("Error adding new parking spot:", error);
+      console.error("Error adding parking space:", error);
       setError(
         error.response?.data?.message ||
-          "Error adding new parking spot. Please try again."
+          "Error adding parking space. Please try again."
       );
     } finally {
       setIsAdding(false);
@@ -129,7 +116,7 @@ export const AddParkingSpot = () => {
           <TableHead>
             <TableRow>
               <TableCell colSpan={2} align="center">
-                Add New Parking Spot
+                Add New Parking Space
               </TableCell>
             </TableRow>
           </TableHead>
@@ -153,15 +140,37 @@ export const AddParkingSpot = () => {
               </TableRow>
             )}
             <TableRow>
-              <TableCell>Location</TableCell>
+              <TableCell>Space Number</TableCell>
               <TableCell>
                 <TextField
-                  name="location"
+                  name="spaceNumber"
+                  type="text"
                   onChange={handleInputChange}
-                  value={formValues.location}
-                  placeholder="Location"
+                  value={formValues.spaceNumber}
+                  placeholder="Space Number"
                   fullWidth
                 />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Size</TableCell>
+              <TableCell>
+                <Select
+                  name="size"
+                  value={formValues.size}
+                  onChange={(e) =>
+                    handleInputChange(
+                      e as { target: { name: string; value: string } }
+                    )
+                  }
+                  fullWidth
+                >
+                  {sizes.map((size) => (
+                    <MenuItem key={size.value} value={size.value}>
+                      {size.label}
+                    </MenuItem>
+                  ))}
+                </Select>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -186,41 +195,13 @@ export const AddParkingSpot = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Reservation</TableCell>
-              <TableCell>
-
-              <Select
-  name="reservationId"
-  value={formValues.reservationId || ""}
-  onChange={(e) =>
-    handleInputChange(
-      e as { target: { name: string; value: string } }
-    )
-  }
-  fullWidth
->
-{reservationsList.length === 0 && (
-  <MenuItem value="" disabled>
-    No Reservations Available
-  </MenuItem>
-)}
-  <MenuItem value="">None</MenuItem>
-  {reservationsList.map((reservation) => (
-    <MenuItem key={reservation.id} value={reservation.id}>
-      {`${reservation.customerName} (Start: ${reservation.startTime}, End: ${reservation.endTime})`}
-    </MenuItem>
-  ))}
-</Select>
-              </TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding || !isFormValid()}
-                  onClick={addNewParkingSpot}
+                  onClick={addNewParkingSpace}
                 >
-                  {isAdding ? "Adding parking spot..." : "Add parking spot"}
+                  {isAdding ? "Adding parking space..." : "Add Parking Space"}
                 </Button>
               </TableCell>
             </TableRow>
@@ -231,4 +212,4 @@ export const AddParkingSpot = () => {
   );
 };
 
-export default AddParkingSpot;
+export default AddParkingSpace;
