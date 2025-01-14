@@ -80,17 +80,18 @@ const Invoices = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="invoices-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          className="add-invoice-button"
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.invoice}/add`)}
         >
           Add New Invoice
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer className="table-container" component={Paper}>
           <Table>
-            <TableHead>
+            <TableHead className="table-header">
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Date Generated</TableCell>
@@ -100,17 +101,20 @@ const Invoices = () => {
             </TableHead>
             <TableBody>
               {invoices?.map((invoice) => (
-                <TableRow key={invoice.id}>
+                <TableRow className="table-row" key={invoice.id}>
                   <TableCell>{invoice.id}</TableCell>
                   <TableCell>{invoice.dateGenerated}</TableCell>
                   <TableCell>{invoice.totalAmount}</TableCell>
-                  <TableCell>
+                  <TableCell className="button-container">
                     <Link to={`${PATH_DASHBOARD.invoice}/edit/${invoice.id}`}>
-                      <Button size="small">Edit</Button>
+                      <Button className="edit-button" size="small">
+                        Edit
+                      </Button>
                     </Link>
                     <Button
                       size="small"
                       onClick={() => handleDeleteClick(invoice.id)}
+                      className="delete-button"
                     >
                       Delete
                     </Button>
@@ -121,7 +125,7 @@ const Invoices = () => {
           </Table>
         </TableContainer>
 
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog className="delete-dialog" open={open} onClose={handleClose}>
           <DialogTitle>Delete Invoice</DialogTitle>
           <DialogContent>
             <DialogContentText>

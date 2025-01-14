@@ -123,6 +123,7 @@ export const AddParkingSpaceManager: React.FC = () => {
 
   return (
     <Box
+      className="add-parking-space-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -132,11 +133,15 @@ export const AddParkingSpaceManager: React.FC = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="table-container"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell className="table-header" colSpan={2} align="center">
                 Add New Parking Space Manager
               </TableCell>
             </TableRow>
@@ -144,7 +149,12 @@ export const AddParkingSpaceManager: React.FC = () => {
           <TableBody>
             {error && (
               <TableRow>
-                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
+                <TableCell
+                  className="error-message"
+                  colSpan={2}
+                  align="center"
+                  style={{ color: "red" }}
+                >
                   {error}
                 </TableCell>
               </TableRow>
@@ -155,12 +165,13 @@ export const AddParkingSpaceManager: React.FC = () => {
                   colSpan={2}
                   align="center"
                   style={{ color: "green" }}
+                  className="success-message"
                 >
                   {successMessage}
                 </TableCell>
               </TableRow>
             )}
-            <TableRow>
+            <TableRow className="input-row">
               <TableCell>Status</TableCell>
               <TableCell>
                 <Select
@@ -171,6 +182,7 @@ export const AddParkingSpaceManager: React.FC = () => {
                       e as { target: { name: string; value: string } }
                     )
                   }
+                  className="select-field"
                   fullWidth
                 >
                   {statuses.map((status) => (
@@ -181,7 +193,7 @@ export const AddParkingSpaceManager: React.FC = () => {
                 </Select>
               </TableCell>
             </TableRow>
-            <TableRow>
+            <TableRow className="input-row">
               <TableCell>Payment</TableCell>
               <TableCell>
                 <TextField
@@ -191,10 +203,11 @@ export const AddParkingSpaceManager: React.FC = () => {
                   value={formValues.pagesa}
                   placeholder="Amount"
                   fullWidth
+                  className="input-field"
                 />
               </TableCell>
             </TableRow>
-            <TableRow>
+            <TableRow className="input-row">
               <TableCell>Contact</TableCell>
               <TableCell>
                 <TextField
@@ -203,10 +216,11 @@ export const AddParkingSpaceManager: React.FC = () => {
                   value={formValues.kontakti}
                   placeholder="Contact"
                   fullWidth
+                  className="input-field"
                 />
               </TableCell>
             </TableRow>
-            <TableRow>
+            <TableRow className="input-row">
               <TableCell>Parking Space</TableCell>
               <TableCell>
                 <Select
@@ -218,6 +232,7 @@ export const AddParkingSpaceManager: React.FC = () => {
                     )
                   }
                   fullWidth
+                  className="select-field"
                 >
                   {parkingSpacesList.map((space) => (
                     <MenuItem key={space.id} value={space.id}>
@@ -228,11 +243,16 @@ export const AddParkingSpaceManager: React.FC = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell
+                className="button-container"
+                colSpan={2}
+                align="center"
+              >
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding || !isFormValid()}
                   onClick={addNewParkingSpaceManager}
+                  className="submit-button"
                 >
                   {isAdding ? "Adding new manager..." : "Add New Manager"}
                 </Button>

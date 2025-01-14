@@ -52,6 +52,7 @@ const AddParkingReservationManager: React.FC = () => {
 
   return (
     <Box
+      className="add-parking-reservation-manager-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -61,20 +62,31 @@ const AddParkingReservationManager: React.FC = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="add-parking-reservation-manager-table-container"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell
+                className="add-parking-reservation-manager-header"
+                colSpan={2}
+                align="center"
+              >
                 Add New Parking Reservation Manager
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell>Manager Name</TableCell>
+              <TableCell className="add-parking-reservation-manager-table-cell">
+                Manager Name
+              </TableCell>
               <TableCell>
                 <TextField
+                  className="add-parking-reservation-manager-text-field"
                   name="managerName"
                   value={formValues.managerName || ""}
                   onChange={handleInputChange}
@@ -84,9 +96,12 @@ const AddParkingReservationManager: React.FC = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Manager Contact</TableCell>
+              <TableCell className="add-parking-reservation-manager-table-cell">
+                Manager Contact
+              </TableCell>
               <TableCell>
                 <TextField
+                  className="add-parking-reservation-manager-text-field"
                   name="managerContact"
                   value={formValues.managerContact || ""}
                   onChange={handleInputChange}
@@ -97,11 +112,16 @@ const AddParkingReservationManager: React.FC = () => {
             </TableRow>
 
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell
+                className="add-parking-reservation-manager-actions"
+                colSpan={2}
+                align="center"
+              >
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding}
                   onClick={addNewParkingReservationManager}
+                  className="add-parking-reservation-manager-button"
                 >
                   {isAdding ? "Adding new manager..." : "Add new manager"}
                 </Button>

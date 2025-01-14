@@ -87,43 +87,49 @@ const PaymentMethods: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="payment-methods-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
           fullWidth
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.paymentMethods}/add`)}
           sx={{ alignSelf: "flex-end" }}
+          className="add-payment-button"
         >
           Add New Payment Method
         </Button>
 
-        <TableContainer component={Paper}>
+        <TableContainer className="table-container" component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Details</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell className="table-cell">ID</TableCell>
+                <TableCell className="table-cell">Type</TableCell>
+                <TableCell className="table-cell">Details</TableCell>
+                <TableCell className="table-cell">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {paymentMethods.map((method) => {
                 return (
                   <TableRow key={method.id}>
-                    <TableCell>{method.id}</TableCell>
-                    <TableCell>{method.type}</TableCell>
-                    <TableCell>{method.details}</TableCell>
-                    <TableCell>
+                    <TableCell className="table-cell">{method.id}</TableCell>
+                    <TableCell className="table-cell">{method.type}</TableCell>
+                    <TableCell className="table-cell">
+                      {method.details}
+                    </TableCell>
+                    <TableCell className="table-cell">
                       <Link
                         to={`${PATH_DASHBOARD.paymentMethods}/edit/${method.id}`}
                       >
-                        <Button size="small">Edit</Button>
+                        <Button className="edit-button" size="small">
+                          Edit
+                        </Button>
                       </Link>
                       <Button
                         size="small"
                         onClick={() => handleDeleteClick(method.id)}
+                        className="delete-button"
                       >
                         Delete
                       </Button>
@@ -136,16 +142,27 @@ const PaymentMethods: React.FC = () => {
         </TableContainer>
 
         <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Delete Payment Method</DialogTitle>
+          <DialogTitle className="dialog-title">
+            Delete Payment Method
+          </DialogTitle>
           <DialogContent>
             <DialogContentText>
               Are you sure you want to delete this payment method? This action
               cannot be undone.
             </DialogContentText>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleDeleteConfirm} color="secondary">
+          <DialogActions className="dialog-actions">
+            <Button
+              className="dialog-cancel-button"
+              onClick={handleCloseDialog}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="dialog-confirm-button"
+              onClick={handleDeleteConfirm}
+              color="secondary"
+            >
               Confirm
             </Button>
           </DialogActions>

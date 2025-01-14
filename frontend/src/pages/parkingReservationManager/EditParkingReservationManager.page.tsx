@@ -4,6 +4,7 @@ import { TextField, Button } from "@mui/material";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import "./edit-parkingReservationManager.scss";
 
 type ParkingReservationManager = {
   id: string;

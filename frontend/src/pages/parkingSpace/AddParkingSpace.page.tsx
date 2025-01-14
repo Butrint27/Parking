@@ -63,6 +63,7 @@ const AddParkingSpace: React.FC = () => {
 
   return (
     <Box
+      className="add-parking-space-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -72,11 +73,19 @@ const AddParkingSpace: React.FC = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="add-parking-space-form"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell
+                className="add-parking-space-title"
+                colSpan={2}
+                align="center"
+              >
                 Add New Parking Space
               </TableCell>
             </TableRow>
@@ -91,6 +100,7 @@ const AddParkingSpace: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="Location"
                   fullWidth
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -103,6 +113,7 @@ const AddParkingSpace: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="Size"
                   fullWidth
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -115,6 +126,7 @@ const AddParkingSpace: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="Status"
                   fullWidth
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -128,6 +140,7 @@ const AddParkingSpace: React.FC = () => {
                   type="date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -141,6 +154,7 @@ const AddParkingSpace: React.FC = () => {
                   type="date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -154,6 +168,7 @@ const AddParkingSpace: React.FC = () => {
                   placeholder="Price Per Hour"
                   type="number"
                   fullWidth
+                  className="add-parking-space-input"
                 />
               </TableCell>
             </TableRow>
@@ -163,6 +178,7 @@ const AddParkingSpace: React.FC = () => {
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding}
                   onClick={addNewParkingSpace}
+                  className="add-parking-space-button"
                 >
                   {isAdding
                     ? "Adding new parking space..."

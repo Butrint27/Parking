@@ -5,6 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { PATH_DASHBOARD } from "../../routes/paths";
 import { format } from "date-fns";
+import "./edit-parkingSpace.scss";
 
 // Krijo llojin e të dhënave për ParkingSpace
 type ParkingSpace = {

@@ -86,9 +86,10 @@ const ParkingReservationManager: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="parking-reservation-manager-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          className="parking-reservation-manager-button"
           variant="outlined"
           onClick={() =>
             redirect(`${PATH_DASHBOARD.parkingReservationManagers}/add`)
@@ -96,7 +97,10 @@ const ParkingReservationManager: React.FC = () => {
         >
           Add New Parking Reservation Manager
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer
+          className="parking-reservation-manager-table"
+          component={Paper}
+        >
           <Table>
             <TableHead>
               <TableRow>
@@ -112,7 +116,7 @@ const ParkingReservationManager: React.FC = () => {
                   <TableCell>{manager.id}</TableCell>
                   <TableCell>{manager.managerName}</TableCell>
                   <TableCell>{manager.managerContact}</TableCell>
-                  <TableCell>
+                  <TableCell className="parking-reservation-manager-actions">
                     <Link
                       to={`${PATH_DASHBOARD.parkingReservationManagers}/edit/${manager.id}`}
                     >
@@ -121,6 +125,7 @@ const ParkingReservationManager: React.FC = () => {
                     <Button
                       size="small"
                       onClick={() => handleDeleteClick(manager.id)}
+                      className="parking-reservation-manager-dialog-title"
                     >
                       Delete
                     </Button>
@@ -139,7 +144,7 @@ const ParkingReservationManager: React.FC = () => {
               be undone.
             </DialogContentText>
           </DialogContent>
-          <DialogActions>
+          <DialogActions className="parking-reservation-manager-dialog-actions">
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleDeleteConfirm} color="secondary">
               Confirm

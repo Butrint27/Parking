@@ -87,37 +87,65 @@ const ParkingSpace: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="parking-space-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
           variant="outlined"
           onClick={() => navigate(`${PATH_DASHBOARD.parkingSpace}/add`)}
+          className="parking-space-button"
         >
           Add New Parking Space
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer
+          className="parking-space-table-container"
+          component={Paper}
+        >
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Price/Hour</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Updated At</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell className="parking-space-table-header">ID</TableCell>
+                <TableCell className="parking-space-table-header">
+                  Location
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Size
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Status
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Price/Hour
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Created At
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Updated At
+                </TableCell>
+                <TableCell className="parking-space-table-header">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {parkingSpaces?.map((space) => (
                 <TableRow key={space.id}>
-                  <TableCell>{space.id}</TableCell>
-                  <TableCell>{space.location}</TableCell>
-                  <TableCell>{space.size}</TableCell>
-                  <TableCell>{space.status}</TableCell>
-                  <TableCell>{space.pricePerHour} $</TableCell>
-                  <TableCell>
+                  <TableCell className="parking-space-table-cell">
+                    {space.id}
+                  </TableCell>
+                  <TableCell className="parking-space-table-cell">
+                    {space.location}
+                  </TableCell>
+                  <TableCell className="parking-space-table-cell">
+                    {space.size}
+                  </TableCell>
+                  <TableCell className="parking-space-table-cell">
+                    {space.status}
+                  </TableCell>
+                  <TableCell className="parking-space-table-cell">
+                    {space.pricePerHour} $
+                  </TableCell>
+                  <TableCell className="parking-space-table-cell">
                     {new Date(space.createdAt).toLocaleString()}
                   </TableCell>
                   <TableCell>
@@ -127,11 +155,14 @@ const ParkingSpace: React.FC = () => {
                     <Link
                       to={`${PATH_DASHBOARD.parkingSpace}/edit/${space.id}`}
                     >
-                      <Button size="small">Edit</Button>
+                      <Button className="parking-space-button" size="small">
+                        Edit
+                      </Button>
                     </Link>
                     <Button
                       size="small"
                       onClick={() => handleDeleteClick(space.id)}
+                      className="parking-space-button"
                     >
                       Delete
                     </Button>
@@ -151,8 +182,17 @@ const ParkingSpace: React.FC = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleDeleteConfirm} color="secondary">
+            <Button
+              className="parking-space-dialog-cancel-button"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="parking-space-dialog-button"
+              onClick={handleDeleteConfirm}
+              color="secondary"
+            >
               Confirm
             </Button>
           </DialogActions>

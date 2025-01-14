@@ -107,36 +107,36 @@ const Sidebar = () => {
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
       <hr />
-       <Button
+      <Button
         label="Reservation"
         onClick={() => handleClick(PATH_DASHBOARD.reservations)}
         type="button"
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
-        <Button
+      <Button
         label="ParkingSpot"
         onClick={() => handleClick(PATH_DASHBOARD.parkingSpot)}
         type="button"
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
-        <Button
-        label="ParkingReservationManager"
+      <Button
+        label="ParkingReservationM"
         onClick={() => handleClick(PATH_DASHBOARD.parkingReservationManagers)}
         type="button"
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
       <hr />
-          <Button
+      <Button
         label="Parking Space"
         onClick={() => handleClick(PATH_DASHBOARD.parkingSpace)}
         type="button"
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
-     
+
       <Button
         label="Availability Monitor"
         onClick={() => handleClick(PATH_DASHBOARD.availabilityMonitor)}
@@ -144,8 +144,8 @@ const Sidebar = () => {
         variant="secondary"
         // icon={<CreditCardIcon className="w-5 h-5 text-white mr-2" />}
       />
-        <Button
-        label="Parking Space Manager"
+      <Button
+        label="ParkingSpaceM"
         onClick={() => handleClick(PATH_DASHBOARD.parkingSpaceManager)}
         type="button"
         variant="secondary"

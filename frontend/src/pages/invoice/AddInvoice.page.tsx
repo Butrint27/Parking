@@ -55,6 +55,7 @@ const AddInvoice: React.FC = () => {
 
   return (
     <Box
+      className="add-invoice-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -64,11 +65,15 @@ const AddInvoice: React.FC = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="table-container"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell className="table-header" colSpan={2} align="center">
                 Add New Invoice
               </TableCell>
             </TableRow>
@@ -85,6 +90,7 @@ const AddInvoice: React.FC = () => {
                   type="date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  className="text-field"
                 />
               </TableCell>
             </TableRow>
@@ -98,6 +104,7 @@ const AddInvoice: React.FC = () => {
                   placeholder="Total Amount"
                   type="number"
                   fullWidth
+                  className="text-field"
                 />
               </TableCell>
             </TableRow>
@@ -105,6 +112,7 @@ const AddInvoice: React.FC = () => {
             <TableRow>
               <TableCell colSpan={2} align="center">
                 <Button
+                  className="add-invoice-button"
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding}
                   onClick={addNewInvoice}

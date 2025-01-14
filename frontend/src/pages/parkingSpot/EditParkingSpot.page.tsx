@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { TextField, Button } from "@mui/material";
 import axios from "axios";
 import Swal from "sweetalert2";
+import "./edit-parkingSpot.scss";
 
 type ParkingSpot = {
   id: number;

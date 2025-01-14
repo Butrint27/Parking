@@ -12,6 +12,7 @@ import axios from "axios";
 import { PATH_DASHBOARD } from "../../routes/paths";
 import { statuses } from "./AddReservation.page";
 import { format } from "date-fns";
+import "./edit-reservation.scss";
 
 type Reservation = {
   id: string;
@@ -152,9 +153,10 @@ const EditReservation: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="edit-reservation-container" style={{ padding: "20px" }}>
       <h2>Edit Reservation</h2>
       <div
+        className="edit-reservation-form-container"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -238,7 +240,10 @@ const EditReservation: React.FC = () => {
           </Select>
         </FormControl>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div
+          className="edit-reservation-button-container"
+          style={{ display: "flex", gap: "10px" }}
+        >
           <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>

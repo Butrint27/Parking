@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import "./edit-parkingSpaceManager.scss";
 
 type ParkingSpaceManagerDto = {
   id: number;
@@ -119,9 +120,10 @@ const EditParkingSpaceManager: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="edit-parking-space-container" style={{ padding: "20px" }}>
       <h2>Edit Parking Space Manager</h2>
       <div
+        className="form-container"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -135,6 +137,7 @@ const EditParkingSpaceManager: React.FC = () => {
           value={parkingSpaceManager.kontakti || ""}
           onChange={handleChange}
           fullWidth
+          className="text-field"
         />
 
         <TextField
@@ -144,9 +147,10 @@ const EditParkingSpaceManager: React.FC = () => {
           value={parkingSpaceManager.pagesa || ""}
           onChange={handleChange}
           fullWidth
+          className="text-field"
         />
 
-        <FormControl fullWidth>
+        <FormControl className="select-field" fullWidth>
           <InputLabel id="status-select-label">Status</InputLabel>
           <Select
             labelId="status-select-label"
@@ -162,7 +166,7 @@ const EditParkingSpaceManager: React.FC = () => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl className="select-field" fullWidth>
           <InputLabel id="parking-space-select-label">Parking Space</InputLabel>
           <Select
             labelId="parking-space-select-label"
@@ -178,11 +182,24 @@ const EditParkingSpaceManager: React.FC = () => {
           </Select>
         </FormControl>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+        <div
+          className="button-container"
+          style={{ display: "flex", gap: "10px" }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            className="save-button"
+            onClick={handleSave}
+          >
             Save
           </Button>
-          <Button variant="outlined" color="secondary" onClick={handleBack}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            className="back-button"
+            onClick={handleBack}
+          >
             Back
           </Button>
         </div>

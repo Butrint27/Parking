@@ -20,6 +20,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import "./reservation.scss";
 
 const API_BASE_URL = "https://localhost:7024/api";
 
@@ -128,7 +129,7 @@ const Reservation = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="reservation-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
           variant="outlined"

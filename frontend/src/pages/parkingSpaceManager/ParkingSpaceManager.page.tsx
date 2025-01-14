@@ -104,7 +104,7 @@ const ParkingSpaceManager = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="parking-space-manager" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
           variant="outlined"
@@ -112,16 +112,16 @@ const ParkingSpaceManager = () => {
         >
           Add New Manager
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer className="table-container" component={Paper}>
           <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Pagesa</TableCell>
-                <TableCell>Kontakti</TableCell>
-                <TableCell>Parking Space</TableCell>
-                <TableCell>Actions</TableCell>
+            <TableHead className="table-head">
+              <TableRow className="table-row">
+                <TableCell className="table-cell">ID</TableCell>
+                <TableCell className="table-cell">Status</TableCell>
+                <TableCell className="table-cell">Pagesa</TableCell>
+                <TableCell className="table-cell">Kontakti</TableCell>
+                <TableCell className="table-cell">Parking Space</TableCell>
+                <TableCell className="table-cell">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -145,9 +145,12 @@ const ParkingSpaceManager = () => {
                       <Link
                         to={`${PATH_DASHBOARD.parkingSpaceManager}/edit/${manager.id}`}
                       >
-                        <Button size="small">Edit</Button>
+                        <Button className="edit-button" size="small">
+                          Edit
+                        </Button>
                       </Link>
                       <Button
+                        className="delete-button"
                         size="small"
                         onClick={() => handleDeleteClick(manager.id)}
                       >
@@ -160,17 +163,23 @@ const ParkingSpaceManager = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Delete Manager</DialogTitle>
+        <Dialog className="delete-dialog" open={open} onClose={handleClose}>
+          <DialogTitle className="dialog-title">Delete Manager</DialogTitle>
           <DialogContent>
-            <DialogContentText>
+            <DialogContentText className="dialog-content-text">
               Are you sure you want to delete this manager? This action cannot
               be undone.
             </DialogContentText>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleDeleteConfirm} color="secondary">
+          <DialogActions className="dialog-actions">
+            <Button className="dialog-button" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              className="dialog-button"
+              onClick={handleDeleteConfirm}
+              color="secondary"
+            >
               Confirm
             </Button>
           </DialogActions>

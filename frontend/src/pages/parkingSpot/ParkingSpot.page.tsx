@@ -94,9 +94,10 @@ const ParkingSpot: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className={"parking-spot-container"} sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          className={"add-button"}
           fullWidth
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.parkingSpot}/add`)}
@@ -105,7 +106,7 @@ const ParkingSpot: React.FC = () => {
           Add New Parking Spot
         </Button>
 
-        <TableContainer component={Paper}>
+        <TableContainer className={"table-container"} component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -142,7 +143,11 @@ const ParkingSpot: React.FC = () => {
           </Table>
         </TableContainer>
 
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <Dialog
+          className="dialog"
+          open={openDialog}
+          onClose={handleCloseDialog}
+        >
           <DialogTitle>Delete Parking Spot</DialogTitle>
           <DialogContent>
             <DialogContentText>

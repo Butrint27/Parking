@@ -120,12 +120,13 @@ const Payments = () => {
     <Box sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          className="add-payment-button"
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.payments}/add`)}
         >
           Add New Payment
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer className="table-container" component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -174,9 +175,12 @@ const Payments = () => {
                       <Link
                         to={`${PATH_DASHBOARD.payments}/edit/${payment.id}`}
                       >
-                        <Button size="small">Edit</Button>
+                        <Button className="edit-button" size="small">
+                          Edit
+                        </Button>
                       </Link>
                       <Button
+                        className="delete-button"
                         size="small"
                         onClick={() => handleDeleteClick(payment.id)}
                       >
@@ -189,7 +193,7 @@ const Payments = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog className="delete-dialog" open={open} onClose={handleClose}>
           <DialogTitle>Delete Payment</DialogTitle>
           <DialogContent>
             <DialogContentText>

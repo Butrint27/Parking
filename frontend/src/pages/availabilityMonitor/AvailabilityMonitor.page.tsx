@@ -105,26 +105,27 @@ const AvailabilityMonitors = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box className="availability-monitors-container" sx={{ padding: 2 }}>
       <Stack direction="column" spacing={2}>
         <Button
+          className="add-monitor-button"
           variant="outlined"
           onClick={() => redirect(`${PATH_DASHBOARD.availabilityMonitor}/add`)}
         >
           Add New Monitor
         </Button>
-        <TableContainer component={Paper}>
+        <TableContainer className="table-container" component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Last Checked</TableCell>
-                <TableCell>Up Time</TableCell>
-                <TableCell>Down Time</TableCell>
-                <TableCell>Check Interval</TableCell>
-                <TableCell>Parking Space</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell className="table-header">ID</TableCell>
+                <TableCell className="table-header">Status</TableCell>
+                <TableCell className="table-header">Last Checked</TableCell>
+                <TableCell className="table-header">Up Time</TableCell>
+                <TableCell className="table-header">Down Time</TableCell>
+                <TableCell className="table-header">Check Interval</TableCell>
+                <TableCell className="table-header">Parking Space</TableCell>
+                <TableCell className="table-header">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -134,7 +135,7 @@ const AvailabilityMonitors = () => {
                 );
 
                 return (
-                  <TableRow key={monitor.id}>
+                  <TableRow className="table-row" key={monitor.id}>
                     <TableCell>{monitor.id}</TableCell>
                     <TableCell>{monitor.status}</TableCell>
                     <TableCell>
@@ -157,15 +158,18 @@ const AvailabilityMonitors = () => {
                     </TableCell>
                     <TableCell>{monitor.checkInterval}</TableCell>
                     <TableCell>{parkingSpace?.location || "Unknown"}</TableCell>
-                    <TableCell>
+                    <TableCell className="actions-buttons">
                       <Link
                         to={`${PATH_DASHBOARD.availabilityMonitor}/edit/${monitor.id}`}
                       >
-                        <Button size="small">Edit</Button>
+                        <Button className="edit-button" size="small">
+                          Edit
+                        </Button>
                       </Link>
                       <Button
                         size="small"
                         onClick={() => handleDeleteClick(monitor.id)}
+                        className="delete-button"
                       >
                         Delete
                       </Button>

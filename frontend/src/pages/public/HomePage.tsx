@@ -12,7 +12,7 @@ const HomePage = () => {
         </div>
         <div className="flex-1 flex flex-col justify-center items-end">
           <img
-            src="images/images.jpg"
+            src="images/parkingCar.jpg"
             className="w-[360px] h-[360px] object-cover rounded-full"
           />
         </div>

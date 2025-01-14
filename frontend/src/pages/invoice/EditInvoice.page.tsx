@@ -5,6 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { PATH_DASHBOARD } from "../../routes/paths";
 import { format } from "date-fns";
+import "./editInvoice.scss";
 
 type Invoice = {
   id: string;
@@ -99,7 +100,7 @@ const EditInvoice: React.FC = () => {
 
   // Function to navigate back
   const handleBackBtnClick = () => {
-    navigate("/invoices");
+    navigate(PATH_DASHBOARD.invoice);
   };
 
   return (

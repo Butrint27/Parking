@@ -54,6 +54,7 @@ const AddPaymentMethod: React.FC = () => {
 
   return (
     <Box
+      className="add-payment-method-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -63,18 +64,22 @@ const AddPaymentMethod: React.FC = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="add-payment-method-table"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell className="table-header" colSpan={2} align="center">
                 Add New Payment Method
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell>Type</TableCell>
+            <TableRow className="table-row">
+              <TableCell className="table-cell">Type</TableCell>
               <TableCell>
                 <TextField
                   name="type"
@@ -85,8 +90,8 @@ const AddPaymentMethod: React.FC = () => {
                 />
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>Details</TableCell>
+            <TableRow className="table-row">
+              <TableCell className="table-cell">Details</TableCell>
               <TableCell>
                 <TextField
                   name="details"
@@ -104,6 +109,7 @@ const AddPaymentMethod: React.FC = () => {
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding}
                   onClick={addNewPaymentMethod}
+                  className="add-payment-method-button"
                 >
                   {isAdding
                     ? "Adding new payment method..."

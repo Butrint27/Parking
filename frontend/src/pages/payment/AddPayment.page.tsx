@@ -16,6 +16,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import "./add-payment.scss";
 
 type FormValues = {
   amount: number;
@@ -151,6 +152,7 @@ export const AddPayment = () => {
 
   return (
     <Box
+      className="add-payment-container"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -160,7 +162,11 @@ export const AddPayment = () => {
         padding: 2,
       }}
     >
-      <TableContainer component={Paper} sx={{ maxWidth: 600 }}>
+      <TableContainer
+        className="table-container"
+        component={Paper}
+        sx={{ maxWidth: 600 }}
+      >
         <Table>
           <TableHead>
             <TableRow>
@@ -172,7 +178,12 @@ export const AddPayment = () => {
           <TableBody>
             {error && (
               <TableRow>
-                <TableCell colSpan={2} align="center" style={{ color: "red" }}>
+                <TableCell
+                  className="error-message"
+                  colSpan={2}
+                  align="center"
+                  style={{ color: "red" }}
+                >
                   {error}
                 </TableCell>
               </TableRow>
@@ -183,6 +194,7 @@ export const AddPayment = () => {
                   colSpan={2}
                   align="center"
                   style={{ color: "green" }}
+                  className="success-message"
                 >
                   {successMessage}
                 </TableCell>
@@ -190,7 +202,7 @@ export const AddPayment = () => {
             )}
             <TableRow>
               <TableCell>Amount</TableCell>
-              <TableCell>
+              <TableCell className="form-input">
                 <TextField
                   name="amount"
                   type="number"
@@ -203,7 +215,7 @@ export const AddPayment = () => {
             </TableRow>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>
+              <TableCell className="form-input">
                 <TextField
                   name="date"
                   type="date"
@@ -216,7 +228,7 @@ export const AddPayment = () => {
             </TableRow>
             <TableRow>
               <TableCell>Status</TableCell>
-              <TableCell>
+              <TableCell className="form-input">
                 <Select
                   name="status"
                   value={formValues.status}
@@ -237,7 +249,7 @@ export const AddPayment = () => {
             </TableRow>
             <TableRow>
               <TableCell>Invoice</TableCell>
-              <TableCell>
+              <TableCell className="form-input">
                 <Select
                   name="invoiceId"
                   value={formValues.invoiceId}
@@ -258,7 +270,7 @@ export const AddPayment = () => {
             </TableRow>
             <TableRow>
               <TableCell>Payment Method</TableCell>
-              <TableCell>
+              <TableCell className="form-input">
                 <Select
                   name="paymentMethodId"
                   value={formValues.paymentMethodId}
@@ -278,7 +290,7 @@ export const AddPayment = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={2} align="center">
+              <TableCell className="action-button" colSpan={2} align="center">
                 <Button
                   variant={isAdding ? "outlined" : "contained"}
                   disabled={isAdding || !isFormValid()}
